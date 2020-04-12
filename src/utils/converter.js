@@ -20,7 +20,7 @@ export default function converter(input, type, cartoDbId) {
       parseColumnInfo()
       if (type === 'UPDATE') {
         const set = createSet(columns, values)
-        query = `UPDATE ${tableName} SET ${set} WHERE Cartodbid = ${cartoDbId}`;
+        query = `UPDATE ${tableName} SET ${set} WHERE cartodb_id = ${cartoDbId}`;
       }
       else {
         query = `INSERT INTO ${tableName} (${columns}) VALUES (${values})`

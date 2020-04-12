@@ -12,11 +12,9 @@ export async function insertUpdate(sql) {
         headers: headers
     }
 
-    axios.get(`${baseSqlApiRoute}`, { params }).then(res => {
-        return res.data
-    }).catch (e => {
-        return e;
-    })
+    return axios.get(`${baseSqlApiRoute}`, { params })
+    .then(res => res.data)
+    .catch (e => e);
 }
 
 export async function getByID(id) {
@@ -28,9 +26,7 @@ export async function getByID(id) {
         headers: headers
     }
 
-    axios.get(`${baseSqlApiRoute}`, { params }).then(res => {
-        console.log(res.data)
-    }).catch (e => {
-        console.log(e);
-    })
+    return axios.get(`${baseSqlApiRoute}`, { params })
+    .then(res => res.data.rows[0])
+    .catch (e => e);
 }

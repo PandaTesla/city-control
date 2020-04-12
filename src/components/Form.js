@@ -4,7 +4,7 @@ import { TextField, Button, InputAdornment } from '@material-ui/core';
 import { Search } from '@material-ui/icons';
 import { FIELDS, FIELDS_HEB } from '../constants/data';
 import converter from '../utils/converter'
-import {insertUpdate} from '../utils/requests'
+import {insertUpdate, getByID} from '../utils/requests'
 
 const defaultState = {
     firstname: "",
@@ -44,6 +44,7 @@ const useStyles = makeStyles({
 function Form(props) {
     const classes = useStyles();
     const [searchValue, setSearchValue] = useState();
+    const [cartodbId, setCartodbId] = useState();
     const [values, setValues] = useReducer((state, newState) => ({ ...state, ...newState }), defaultState);
 
     useEffect(() => {
@@ -56,8 +57,12 @@ function Form(props) {
         setValues({ [name]: newValue });
     };
     
-    const handleSearchClick = () => {
-        console.log(searchValue)
+    const handleSearchClick = async () => {
+        let fetchedFields = await getByID(searchValue);
+        setCartodbId(fetchedFields.cartodb_id)
+        delete fetchedFields.cartodb_id
+        delete fetchedFields.the_geom_webmercator
+        setValues(fetchedFields);
     };
     
     const handleSaveClick = () => {
@@ -65,7 +70,7 @@ function Form(props) {
         .filter( key => values[key])
         .reduce( (res, key) => (res[key] = values[key], res), {} );// filters fields that not filled
         let type = props.type === 0 ? "INSERT": "UPDATE";
-        insertUpdate(converter(filledValues, type, searchValue));
+        insertUpdate(converter(filledValues, type, cartodbId));
     };
 
     return (
