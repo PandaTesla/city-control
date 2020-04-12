@@ -8,7 +8,7 @@ export async function insertUpdate(sql) {
     }
 
     axios.get(`${baseSqlApiRoute}`, { params }).then(res => {
-        return  res.data
+        return res.data
     }).catch (e => {
         return e;
     })
