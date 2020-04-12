@@ -4,6 +4,7 @@ import { TextField, Button, InputAdornment } from '@material-ui/core';
 import { Search } from '@material-ui/icons';
 import { FIELDS, FIELDS_HEB } from '../constants/data';
 import converter from '../utils/converter'
+import {insertUpdate} from '../utils/requests'
 
 const defaultState = {
     firstname: "",
@@ -63,7 +64,8 @@ function Form(props) {
         let filledValues = Object.keys(values)
         .filter( key => values[key])
         .reduce( (res, key) => (res[key] = values[key], res), {} );// filters fields that not filled
-        console.log(converter(filledValues, 'INSERT', 213231))
+        let type = props.type === 0 ? "INSERT": "UPDATE";
+        insertUpdate(converter(filledValues, type, searchValue));
     };
 
     return (

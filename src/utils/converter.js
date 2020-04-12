@@ -1,5 +1,5 @@
 export default function converter(input, type, cartoDbId) {
-    const tableName = "elbit"
+    const tableName = "elbit.wide_bridge_copy";
     const tableItem = input;
     var columns = [];
     var columnTypes = [];
@@ -35,7 +35,7 @@ export default function converter(input, type, cartoDbId) {
         columns.push(i);
         let value = item[i]
         if (typeof value === 'string') {
-          value = "\"" + value + "\"";
+          value = "'" + value + "'";
         }
         if (value == null) {
           value = "\"\""

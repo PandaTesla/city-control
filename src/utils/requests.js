@@ -4,7 +4,10 @@ import { baseSqlApiRoute, API_KEY } from '../constants/routes';
 export async function insertUpdate(sql) {
     const params = {
         q: sql,
-        api_key: API_KEY
+        api_key: API_KEY,
+        headers: {
+            'Access-Control-Allow-Origin': '*'
+        }
     }
 
     axios.get(`${baseSqlApiRoute}`, { params }).then(res => {
