@@ -70,6 +70,8 @@ function Form(props) {
         .filter( key => values[key])
         .reduce( (res, key) => (res[key] = values[key], res), {} );// filters fields that not filled
         let type = props.type === 0 ? "INSERT": "UPDATE";
+        if (filledValues.lon && filledValues.lat)
+            filledValues["the_geom"] = `ST_SetSRID(ST_MakePoint(${filledValues.lon}, ${filledValues.lat}),4326)`
         insertUpdate(converter(filledValues, type, cartodbId));
     };
 

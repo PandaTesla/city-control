@@ -1,5 +1,8 @@
 export default function converter(input, type, cartoDbId) {
-    const tableName = "elbit.wide_bridge_copy";
+    let tableName;
+    if(process.env.NODE_ENV === "production")
+        tableName = "elbit.wide_bridge";
+    else tableName = "elbit.wide_bridge_copy"
     const tableItem = input;
     var columns = [];
     var columnTypes = [];
@@ -34,7 +37,7 @@ export default function converter(input, type, cartoDbId) {
       for (var i in item) {
         columns.push(i);
         let value = item[i]
-        if (typeof value === 'string') {
+        if (typeof value === 'string' && i !== "the_geom") {
           value = "'" + value + "'";
         }
         if (value == null) {

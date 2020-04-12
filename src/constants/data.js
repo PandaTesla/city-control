@@ -1,4 +1,4 @@
-export const FIELDS = ["firstname", "lastname", "phone1", "phone2", "city", "street", "building", 'entrance', "floor", "apartment", "familymembers", "lon", "lat", "the_geom", "deliverstatus", "numservingsdistributed", "comments"];
+export const FIELDS = ["firstname", "lastname", "phone1", "phone2", "city", "street", "building", 'entrance', "floor", "apartment", "familymembers", "lon", "lat", "deliverstatus", "numservingsdistributed", "comments"];
 
 export const FIELDS_HEB = {
     firstname: "שם פרטי",
