@@ -1,8 +1,6 @@
+import {tableName} from '../constants/routes'
+
 export default function converter(input, type, cartoDbId) {
-    let tableName;
-    if(process.env.NODE_ENV === "production")
-        tableName = "elbit.wide_bridge";
-    else tableName = "elbit.wide_bridge_copy"
     const tableItem = input;
     var columns = [];
     var columnTypes = [];
