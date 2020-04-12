@@ -45,7 +45,7 @@ ingress:
     - host: city-control.covid-97.com
       paths: ['/']
   tls:
-    - secretNAme: city-control-tls
+    - secretName: city-control-tls
       hosts: ['city-control.covid-97.com']
 
 resources:
