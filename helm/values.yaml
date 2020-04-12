@@ -36,16 +36,17 @@ service:
   port: 80
 
 ingress:
-  enabled: false
+  enabled: true
   annotations:
     kubernetes.io/ingress.class: azure/application-gateway
     cert-manager.io/cluster-issuer: letsencrypt-prod
     cert-manager.io/acme-challenge-type: http01
   hosts:
-    - city-control.covid-97.com
+    - host: city-control.covid-97.com
+      paths: ['/']
   tls:
-    - hosts:
-      - city-control.covid-97.com
+    - secretNAme: city-control-tls
+      hosts: ['city-control.covid-97.com']
 
 resources:
   # We usually recommend not to specify default resources and to leave this as a conscious
