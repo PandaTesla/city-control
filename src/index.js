@@ -1,12 +1,26 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { createMuiTheme, ThemeProvider, StylesProvider, jssPreset } from '@material-ui/core/styles';
+import { create } from 'jss';
+import rtl from 'jss-rtl';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
+// Configure JSS
+const jss = create({ plugins: [...jssPreset().plugins, rtl()] });
+
+const theme = createMuiTheme({
+  direction: 'rtl',
+});
+
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <ThemeProvider theme={theme}>
+      <StylesProvider jss={jss}>
+        <App />
+      </StylesProvider>
+    </ThemeProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
