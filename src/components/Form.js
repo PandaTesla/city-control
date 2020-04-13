@@ -1,11 +1,10 @@
 import React, {useReducer, useEffect, useState} from 'react';
-import { makeStyles, fade } from '@material-ui/core/styles';
-import { TextField, Button, InputBase, Grid, Card, CardContent, CardActions, AppBar, Toolbar, Typography, Snackbar } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import { TextField, Button, Grid, Card, CardContent, CardActions, Snackbar } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
-import { Search } from '@material-ui/icons';
 import { FIELDS_HEB } from '../constants/data';
 import converter from '../utils/converter'
-import {insertUpdate, getByID} from '../utils/requests'
+import { insertUpdate } from '../utils/requests'
 
 const defaultState = {
     firstname: "",
@@ -28,71 +27,23 @@ const defaultState = {
 
 const useStyles = makeStyles(theme => ({
     card: {
-        width: '50%',
-        margin: '0 auto',
+        margin: '0 30px',
         marginTop: '20px'
     },
     title: {
         position: 'relative',
     },
-    searchDiv: {
-        display: 'flex'
-    },
-    search: {
-        display: 'flex',
-        alignItems: 'center',
-        position: 'relative',
-        borderRadius: theme.shape.borderRadius,
-        backgroundColor: fade(theme.palette.common.white, 0.15),
-        '&:hover': {
-            backgroundColor: fade(theme.palette.common.white, 0.25),
-        },
-        marginRight: theme.spacing(2),
-        marginLeft: 0,
-        width: '100%',
-        [theme.breakpoints.up('sm')]: {
-            marginLeft: theme.spacing(3),
-            width: 'auto',
-        },
-    },
-    searchIcon: {
-        padding: theme.spacing(0, 2),
-        height: '100%',
-        position: 'absolute',
-        pointerEvents: 'none',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    inputRoot: {
-        color: 'inherit',
-    },
-    inputInput: {
-        padding: theme.spacing(1, 1, 1, 0),
-        // vertical padding + font size from searchIcon
-        paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
-        transition: theme.transitions.create('width'),
-        width: '100%',
-        [theme.breakpoints.up('sm')]: {
-            width: '15ch',
-            '&:focus': {
-            width: '20ch',
-            },
-        },
-    },
   }));
 
 function Form(props) {
     const classes = useStyles();
-    const [searchValue, setSearchValue] = useState();
-    const [cartodbId, setCartodbId] = useState();
     const [response, setResponse] = useState(null);
     const [notify, setNotify] = useState(false);
     const [values, setValues] = useReducer((state, newState) => ({ ...state, ...newState }), defaultState);
 
     useEffect(() => {
-        setValues(defaultState);
-    }, [props.type]);
+        setValues(props.data || defaultState);
+    }, [props.data]);
     
     useEffect(() => {
         if(response)
@@ -109,57 +60,20 @@ function Form(props) {
         setValues({ [name]: newValue });
     };
     
-    const handleSearchClick = async () => {
-        let fetchRes = await getByID(searchValue);
-        if(fetchRes.data) {
-            setCartodbId(fetchRes.data.cartodb_id)
-            delete fetchRes.data.cartodb_id
-            delete fetchRes.data.the_geom_webmercator
-            setValues(fetchRes.data);
-        }
-    };
-    
     const handleSaveClick = async () => {
         let filledValues = Object.keys(values)
         .filter( key => values[key])
         .reduce( (res, key) => Object.assign(res, { [key]: values[key] }), {} ); // filters fields that not filled
-        let type = props.type === 0 ? "INSERT": "UPDATE";
+        let type = filledValues.cartodb_id ? "UPDATE" : "INSERT";
         if (filledValues.lon && filledValues.lat)
             filledValues["the_geom"] = `ST_SetSRID(ST_MakePoint(${filledValues.lon}, ${filledValues.lat}),4326)`
-        let res = await insertUpdate(converter(filledValues, type, cartodbId));
+        let res = await insertUpdate(converter(filledValues, type, filledValues.cartodb_id));
         setResponse(res);
     };
 
     return (
         <>
             <Card raised className={classes.card}>
-                <AppBar position="static" color="primary" className={classes.title}>
-                    <Toolbar>
-                        <Typography variant="h6" color="inherit" noWrap>
-                        {(props.type === 1)? "ערוך משימה קיימת" : "צור משימה חדשה"}
-                        </Typography>
-                        { props.type === 1 && <div className={classes.searchDiv}>
-                            <div className={classes.search}>
-                                <div className={classes.searchIcon}>
-                                    <Search />
-                                </div>
-                                <InputBase
-                                placeholder="חיפוש לפי מזהה"
-                                type="number"
-                                onChange={e => setSearchValue(e.target.value)}
-                                classes={{
-                                    root: classes.inputRoot,
-                                    input: classes.inputInput,
-                                }}
-                                inputProps={{ 'aria-label': 'search' }}
-                                />
-                            </div>
-                            <Button variant="contained" color="secondary" onClick={handleSearchClick}>
-                            פתח
-                            </Button>
-                        </div>}
-                    </Toolbar>
-                </AppBar>
                 <CardContent>
                     <Grid container spacing={3}>
                         <Grid item xs>
