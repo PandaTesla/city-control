@@ -10,6 +10,7 @@ export const SQL_API = {
 
 export const SQL_EXPRESSIONS = {
     selectByid: `SELECT * from ${SQL_API.tableName} WHERE cartodb_id=`,
+    selectByColumn: `SELECT * from ${SQL_API.tableName} WHERE `,
     selectColumnsNames: `SELECT columns.column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'wide_bridge_copy'`
 }
 
