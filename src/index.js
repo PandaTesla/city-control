@@ -12,6 +12,18 @@ const jss = create({ plugins: [...jssPreset().plugins, rtl()] });
 
 const theme = createMuiTheme({
   direction: 'rtl',
+  palette: {
+    type: 'dark',
+    primary: {
+      main: '#00bcd4',
+    },
+    secondary: {
+      main: '#009688',
+    },
+    background: {
+      paper: '#455a64'
+    }
+  },
 });
 
 ReactDOM.render(
