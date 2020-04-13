@@ -1,6 +1,7 @@
 import React, {useReducer, useEffect, useState} from 'react';
 import { makeStyles, fade } from '@material-ui/core/styles';
-import { TextField, Button, InputBase, Grid, Card, CardContent, CardActions, AppBar, Toolbar, Typography } from '@material-ui/core';
+import { TextField, Button, InputBase, Grid, Card, CardContent, CardActions, AppBar, Toolbar, Typography, Snackbar } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
 import { Search } from '@material-ui/icons';
 import { FIELDS_HEB } from '../constants/data';
 import converter from '../utils/converter'
@@ -85,11 +86,22 @@ function Form(props) {
     const classes = useStyles();
     const [searchValue, setSearchValue] = useState();
     const [cartodbId, setCartodbId] = useState();
+    const [response, setResponse] = useState(null);
+    const [notify, setNotify] = useState(false);
     const [values, setValues] = useReducer((state, newState) => ({ ...state, ...newState }), defaultState);
 
     useEffect(() => {
         setValues(defaultState);
     }, [props.type]);
+    
+    useEffect(() => {
+        if(response)
+            setNotify(true);
+    }, [response]);
+
+    const handleNotifierClose = () => {
+        setNotify(false);
+    };
 
     const handleChangeValue = event => {
         const name = event.target.name;
@@ -98,21 +110,24 @@ function Form(props) {
     };
     
     const handleSearchClick = async () => {
-        let fetchedFields = await getByID(searchValue);
-        setCartodbId(fetchedFields.cartodb_id)
-        delete fetchedFields.cartodb_id
-        delete fetchedFields.the_geom_webmercator
-        setValues(fetchedFields);
+        let fetchRes = await getByID(searchValue);
+        if(fetchRes.data) {
+            setCartodbId(fetchRes.data.cartodb_id)
+            delete fetchRes.data.cartodb_id
+            delete fetchRes.data.the_geom_webmercator
+            setValues(fetchRes.data);
+        }
     };
     
-    const handleSaveClick = () => {
+    const handleSaveClick = async () => {
         let filledValues = Object.keys(values)
         .filter( key => values[key])
         .reduce( (res, key) => Object.assign(res, { [key]: values[key] }), {} ); // filters fields that not filled
         let type = props.type === 0 ? "INSERT": "UPDATE";
         if (filledValues.lon && filledValues.lat)
-        filledValues["the_geom"] = `ST_SetSRID(ST_MakePoint(${filledValues.lon}, ${filledValues.lat}),4326)`
-        insertUpdate(converter(filledValues, type, cartodbId));
+            filledValues["the_geom"] = `ST_SetSRID(ST_MakePoint(${filledValues.lon}, ${filledValues.lat}),4326)`
+        let res = await insertUpdate(converter(filledValues, type, cartodbId));
+        setResponse(res);
     };
 
     return (
@@ -349,6 +364,16 @@ function Form(props) {
                     </Button>
                 </CardActions>
             </Card>
+            <Snackbar open={notify} autoHideDuration={6000} onClose={handleNotifierClose}>
+                {(response?.status < 400) ? 
+                    <Alert onClose={handleNotifierClose} severity="success">
+                        המשימה נשמרה בהצלחה!
+                    </Alert> :
+                    <Alert onClose={handleNotifierClose} severity="error">
+                        השמירה נכשלה
+                    </Alert>
+                }
+            </Snackbar>
         </>
     );
 }
