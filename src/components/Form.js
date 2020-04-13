@@ -1,8 +1,8 @@
 import React, {useReducer, useEffect, useState} from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import { TextField, Button, InputAdornment } from '@material-ui/core';
+import { makeStyles, fade } from '@material-ui/core/styles';
+import { TextField, Button, InputBase, Grid, Card, CardContent, CardActions, AppBar, Toolbar, Typography } from '@material-ui/core';
 import { Search } from '@material-ui/icons';
-import { FIELDS, FIELDS_HEB } from '../constants/data';
+import { FIELDS_HEB } from '../constants/data';
 import converter from '../utils/converter'
 import {insertUpdate, getByID} from '../utils/requests'
 
@@ -20,26 +20,66 @@ const defaultState = {
     familymembers: "",
     lon: "",
     lat: "",
-    the_geom: "",
     deliverstatus: "",
     numservingsdistributed: "",
     comments: "",
 }
 
-const useStyles = makeStyles({
-    formDiv: {
+const useStyles = makeStyles(theme => ({
+    card: {
         width: '50%',
         margin: '0 auto',
+        marginTop: '20px'
+    },
+    title: {
+        position: 'relative',
+    },
+    searchDiv: {
+        display: 'flex'
+    },
+    search: {
         display: 'flex',
-        flexDirection: 'column',
+        alignItems: 'center',
+        position: 'relative',
+        borderRadius: theme.shape.borderRadius,
+        backgroundColor: fade(theme.palette.common.white, 0.15),
+        '&:hover': {
+            backgroundColor: fade(theme.palette.common.white, 0.25),
+        },
+        marginRight: theme.spacing(2),
+        marginLeft: 0,
+        width: '100%',
+        [theme.breakpoints.up('sm')]: {
+            marginLeft: theme.spacing(3),
+            width: 'auto',
+        },
     },
-    searchBar: {
-        marginStart: '20%'
+    searchIcon: {
+        padding: theme.spacing(0, 2),
+        height: '100%',
+        position: 'absolute',
+        pointerEvents: 'none',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
-    saveBtn:{
-        marginTop: '20px',
-    }
-  });
+    inputRoot: {
+        color: 'inherit',
+    },
+    inputInput: {
+        padding: theme.spacing(1, 1, 1, 0),
+        // vertical padding + font size from searchIcon
+        paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+        transition: theme.transitions.create('width'),
+        width: '100%',
+        [theme.breakpoints.up('sm')]: {
+            width: '15ch',
+            '&:focus': {
+            width: '20ch',
+            },
+        },
+    },
+  }));
 
 function Form(props) {
     const classes = useStyles();
@@ -68,53 +108,247 @@ function Form(props) {
     const handleSaveClick = () => {
         let filledValues = Object.keys(values)
         .filter( key => values[key])
-        .reduce( (res, key) => (res[key] = values[key], res), {} );// filters fields that not filled
+        .reduce( (res, key) => Object.assign(res, { [key]: values[key] }), {} ); // filters fields that not filled
         let type = props.type === 0 ? "INSERT": "UPDATE";
         if (filledValues.lon && filledValues.lat)
-            filledValues["the_geom"] = `ST_SetSRID(ST_MakePoint(${filledValues.lon}, ${filledValues.lat}),4326)`
+        filledValues["the_geom"] = `ST_SetSRID(ST_MakePoint(${filledValues.lon}, ${filledValues.lat}),4326)`
         insertUpdate(converter(filledValues, type, cartodbId));
     };
 
     return (
         <>
-            { props.type === 1 && <div>
-                <TextField
-                    className={classes.searchBar}
-                    label="חיפוש לפי מזהה"
-                    type="number"
-                    onChange={e => setSearchValue(e.target.value)}
-                    InputProps={{
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <Search/>
-                            </InputAdornment>
-                        ),
-                    }}
-                />
-                <Button variant="text" color="primary" onClick={handleSearchClick}>
-                 חיפוש
-                </Button>
-            </div>}
-            <div className={classes.formDiv}>
-                {FIELDS.map(field => (["building","floor","apartment","familymembers","lon","lat","deliverstatus","numservingsdistributed"].includes(field)) ?
-                    (<TextField
-                        name={field}
-                        value={values[field]}
-                        type='number'
-                        label={FIELDS_HEB[field]}
-                        onChange={handleChangeValue}
-                    />) :
-                    (<TextField
-                        name={field}
-                        value={values[field]}
-                        label={FIELDS_HEB[field]}
-                        onChange={handleChangeValue}
-                    />)
-                )}
-                <Button variant="contained" color="primary" className={classes.saveBtn} onClick={handleSaveClick}>
-                    שמור
-                </Button>
-            </div>
+            <Card raised className={classes.card}>
+                <AppBar position="static" color="primary" className={classes.title}>
+                    <Toolbar>
+                        <Typography variant="h6" color="inherit" noWrap>
+                        {(props.type === 1)? "ערוך משימה קיימת" : "צור משימה חדשה"}
+                        </Typography>
+                        { props.type === 1 && <div className={classes.searchDiv}>
+                            <div className={classes.search}>
+                                <div className={classes.searchIcon}>
+                                    <Search />
+                                </div>
+                                <InputBase
+                                placeholder="חיפוש לפי מזהה"
+                                type="number"
+                                onChange={e => setSearchValue(e.target.value)}
+                                classes={{
+                                    root: classes.inputRoot,
+                                    input: classes.inputInput,
+                                }}
+                                inputProps={{ 'aria-label': 'search' }}
+                                />
+                            </div>
+                            <Button variant="contained" color="secondary" onClick={handleSearchClick}>
+                            פתח
+                            </Button>
+                        </div>}
+                    </Toolbar>
+                </AppBar>
+                <CardContent>
+                    <Grid container spacing={3}>
+                        <Grid item xs>
+                            <TextField
+                                name='firstname'
+                                value={values['firstname']}
+                                label={FIELDS_HEB['firstname']}
+                                fullWidth
+                                variant="outlined"
+                                size="small"
+                                onChange={handleChangeValue}
+                            />
+                        </Grid>
+                        <Grid item xs>
+                            <TextField
+                                name='lastname'
+                                value={values['lastname']}
+                                label={FIELDS_HEB['lastname']}
+                                fullWidth
+                                variant="outlined"
+                                size="small"
+                                onChange={handleChangeValue}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container spacing={3}>
+                        <Grid item xs>
+                            <TextField
+                                name='phone1'
+                                value={values['phone1']}
+                                label={FIELDS_HEB['phone1']}
+                                fullWidth
+                                variant="outlined"
+                                size="small"
+                                onChange={handleChangeValue}
+                            />
+                        </Grid>
+                        <Grid item xs>
+                            <TextField
+                                name='phone2'
+                                value={values['phone2']}
+                                label={FIELDS_HEB['phone2']}
+                                fullWidth
+                                variant="outlined"
+                                size="small"
+                                onChange={handleChangeValue}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container spacing={3}>
+                        <Grid item xs>
+                            <TextField
+                                name='city'
+                                value={values['city']}
+                                label={FIELDS_HEB['city']}
+                                fullWidth
+                                variant="outlined"
+                                size="small"
+                                onChange={handleChangeValue}
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                name='street'
+                                value={values['street']}
+                                label={FIELDS_HEB['street']}
+                                fullWidth
+                                variant="outlined"
+                                size="small"
+                                onChange={handleChangeValue}
+                            />
+                        </Grid>
+                        <Grid item xs>
+                            <TextField
+                                name='building'
+                                type='number'
+                                value={values['building']}
+                                label={FIELDS_HEB['building']}
+                                fullWidth
+                                variant="outlined"
+                                size="small"
+                                onChange={handleChangeValue}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container spacing={3}>
+                        <Grid item xs>
+                            <TextField
+                                name='entrance'
+                                value={values['entrance']}
+                                label={FIELDS_HEB['entrance']}
+                                fullWidth
+                                variant="outlined"
+                                size="small"
+                                onChange={handleChangeValue}
+                            />
+                        </Grid>
+                        <Grid item xs>
+                            <TextField
+                                name='floor'
+                                type='number'
+                                value={values['floor']}
+                                label={FIELDS_HEB['floor']}
+                                fullWidth
+                                variant="outlined"
+                                size="small"
+                                onChange={handleChangeValue}
+                            />
+                        </Grid>
+                        <Grid item xs>
+                            <TextField
+                                name='apartment'
+                                type='number'
+                                value={values['apartment']}
+                                label={FIELDS_HEB['apartment']}
+                                fullWidth
+                                variant="outlined"
+                                size="small"
+                                onChange={handleChangeValue}
+                            />
+                        </Grid>
+                        <Grid item xs>
+                            <TextField
+                                name='familymembers'
+                                type='number'
+                                value={values['familymembers']}
+                                label={FIELDS_HEB['familymembers']}
+                                fullWidth
+                                variant="outlined"
+                                size="small"
+                                onChange={handleChangeValue}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container spacing={3}>
+                        <Grid item xs>
+                            <TextField
+                                name='lon'
+                                type='number'
+                                value={values['lon']}
+                                label={FIELDS_HEB['lon']}
+                                fullWidth
+                                variant="outlined"
+                                size="small"
+                                onChange={handleChangeValue}
+                            />
+                        </Grid>
+                        <Grid item xs>
+                            <TextField
+                                name='lat'
+                                type='number'
+                                value={values['lat']}
+                                label={FIELDS_HEB['lat']}
+                                fullWidth
+                                variant="outlined"
+                                size="small"
+                                onChange={handleChangeValue}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Grid container spacing={3}>
+                        <Grid item xs>
+                            <TextField
+                                name='deliverstatus'
+                                type='number'
+                                value={values['deliverstatus']}
+                                label={FIELDS_HEB['deliverstatus']}
+                                fullWidth
+                                variant="outlined"
+                                size="small"
+                                onChange={handleChangeValue}
+                            />
+                        </Grid>
+                        <Grid item xs>
+                            <TextField
+                                name='numservingsdistributed'
+                                type='number'
+                                value={values['numservingsdistributed']}
+                                label={FIELDS_HEB['numservingsdistributed']}
+                                fullWidth
+                                variant="outlined"
+                                size="small"
+                                onChange={handleChangeValue}
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                name='comments'
+                                value={values['comments']}
+                                label={FIELDS_HEB['comments']}
+                                fullWidth
+                                variant="outlined"
+                                size="small"
+                                onChange={handleChangeValue}
+                            />
+                        </Grid>
+                    </Grid>
+                </CardContent>
+                <CardActions>
+                    <Button variant="contained" color="primary" onClick={handleSaveClick}>
+                        שמור
+                    </Button>
+                </CardActions>
+            </Card>
         </>
     );
 }
