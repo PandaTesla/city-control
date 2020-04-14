@@ -297,8 +297,6 @@ function Form(props) {
     );
 }
 
-Form.propTypes = {
-    data: PropTypes.object
-};
+
 
 export default Form;
