@@ -1,23 +1,22 @@
 name: Build image from commit.
 on: [push]
 
+env:
+  IMAGE_FULL_NAME: ${{ secrets.REGISTRY }}.azurecr.io/${{ secrets.REPOSITORY }}/city-control:${GITHUB_SHA::8}
+
 jobs:
   build-and-push-to-acr:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: ACR build and push to ACR
-        id: acr
-        uses: ams0/acr-task-github-action@v1
+      - uses: azure/login@v1
         with:
-          service_principal: ${{ secrets.SERVICE_PRINCIPAL }}
-          service_principal_password: ${{ secrets.SERVICE_PRINCIPAL_PASSWORD }}
-          tenant: ${{ secrets.TENANT }}
-          registry: ${{ secrets.REGISTRY }}
-          repository: ${{ secrets.REPOSITORY }}
-          image: city-control
-          tag: ${GITHUB_SHA::8}
-          folder: .
-          dockerfile: Dockerfile
-     
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: login to acr
+        run: |
+          az acr login --name ${{ secrets.REGISTRY }}
+      - name: build-image
+        run: |
+          echo ${GITHUB_SHA::8}
+          echo $IMAGE_FULL_NAME
+          docker build -t $IMAGE_FULL_NAME .
+          docker push $IMAGE_FULL_NAME
