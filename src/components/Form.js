@@ -1,4 +1,5 @@
 import React, {useReducer, useEffect, useState} from 'react';
+import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField, Button, Grid, Card, CardContent, CardActions, Snackbar } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
@@ -25,7 +26,7 @@ const defaultState = {
     comments: null,
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
     card: {
         margin: '0 30px',
         marginTop: '20px'
@@ -283,7 +284,7 @@ function Form(props) {
                 </CardActions>
             </Card>
             <Snackbar open={notify} autoHideDuration={6000} onClose={handleNotifierClose}>
-                {(response?.status < 400) ? 
+                {(response && response.status < 400) ? 
                     <Alert onClose={handleNotifierClose} severity="success">
                         המשימה נשמרה בהצלחה!
                     </Alert> :
@@ -295,5 +296,9 @@ function Form(props) {
         </>
     );
 }
+
+Form.propTypes = {
+    data: PropTypes.object
+};
 
 export default Form;
