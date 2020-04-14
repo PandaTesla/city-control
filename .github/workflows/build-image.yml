@@ -11,10 +11,14 @@ jobs:
       - name: login to acr
         run: |
           az acr login --name ${{ secrets.REGISTRY }}
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - uses: docker/build-push-action@v1
         with:
           repository: ${{ secrets.REGISTRY }}.azurecr.io/${{ secrets.REPOSITORY }}/city-control
           tag_with_ref: true
           tag_with_sha: true
           path: .
-          
+
