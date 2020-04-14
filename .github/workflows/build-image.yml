@@ -1,0 +1,23 @@
+name: Build image from commit.
+on: [push]
+
+jobs:
+  build-and-push-to-acr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: ACR build and push to ACR
+        id: acr
+        uses: ams0/acr-task-github-action@v1
+        with:
+          service_principal: ${{ secrets.SERVICE_PRINCIPAL }}
+          service_principal_password: ${{ secrets.SERVICE_PRINCIPAL_PASSWORD }}
+          tenant: ${{ secrets.TENANT }}
+          registry: ${{ secrets.REGISTRY }}
+          repository: ${{ secrets.REPOSITORY }}
+          image: city-control
+          tag: ${GITHUB_SHA::8}
+          folder: .
+          dockerfile: Dockerfile
+     
