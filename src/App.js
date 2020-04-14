@@ -4,7 +4,7 @@ import {AppBar, Toolbar, Typography, Button, Card, CardContent, Select, FormCont
 import {Add, Edit, Search} from '@material-ui/icons';
 import './App.css';
 import { FIELDS_HEB } from './constants/data';
-import { getByID } from './utils/requests'
+import { getByColumn, getColumnsName } from './utils/requests'
 
 import Form from './components/Form'
 
@@ -41,17 +41,16 @@ function App() {
   const [type, setType] = useState(1);
 
   useEffect(() => {
-    setColumns(['cartodb_id']);
+    async function fetchCols() {
+      let columns = await getColumnsName();
+      setColumns(columns.data);
+    }
+    fetchCols();
   }, [])
   
   const handleSearch = async () => {
-    let fetchRes = await getByID(searchValue);
-    if(fetchRes.data) {
-        // setCartodbId(fetchRes.data.cartodb_id)
-        // delete fetchRes.data.cartodb_id
-        delete fetchRes.data.the_geom_webmercator
-    }
-    setMissions([fetchRes.data])
+    let fetchRes = await getByColumn(searchByCol, searchValue);
+    setMissions(fetchRes.data)
   }
 
   return (
