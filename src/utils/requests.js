@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { auth, sqlApi } from '../constants/routes';
+import { AUTH, SQL_API, SQL_EXPRESSIONS } from '../constants/routes';
 
 let headers =  {
     'Access-Control-Allow-Origin': '*'
@@ -7,33 +7,61 @@ let headers =  {
 
 let params = {
     q: null,
-    api_key: auth.apiKey,
+    api_key: AUTH.apiKey,
     headers: headers
 }
 
 export async function insertUpdate(sql) {
     params.q = sql
 
-    return axios.get(`${sqlApi.url}`, { params })
+    return axios.get(`${SQL_API.url}`, { params })
     .then(res => ({
         status: res.status,
         data: res.data
     }))
-    .catch (e => ({
+    .catch(e => ({
         status: e.response.status,
         data: e.response.data
     }));
 }
 
 export async function getByID(id) {
-    params.q = `SELECT * from ${sqlApi.tableName} WHERE cartodb_id=${id}`
+    params.q = SQL_EXPRESSIONS.selectByid + id
 
-    return axios.get(`${sqlApi.url}`, { params })
+    return axios.get(`${SQL_API.url}`, { params })
     .then(res => ({
         status: res.status,
         data: res.data.rows[0]
     }))
-    .catch (e => ({
+    .catch(e => ({
+        status: e.response.status,
+        data: e.response.data
+    }));
+}
+
+export async function getByColumn(columnName, value) {
+    params.q = SQL_EXPRESSIONS.selectByColumn + `${columnName} = '${value}'`
+
+    return axios.get(`${SQL_API.url}`, { params })
+    .then(res => ({
+        status: res.status,
+        data: res.data.rows[0]
+    }))
+    .catch(e => ({
+        status: e.response.status,
+        data: e.response.data
+    }));
+}
+
+export async function getColumnsName() {
+    params.q = SQL_EXPRESSIONS.selectColumnsNames
+
+    return axios.get(`${SQL_API.url}`, { params })
+    .then(res => ({
+        status: res.status,
+        data: res.data.rows.map(row => row.column_name)
+    }))
+    .catch(e => ({
         status: e.response.status,
         data: e.response.data
     }));

@@ -1,5 +1,5 @@
-import {sqlApi} from '../constants/routes'
-const tableName = sqlApi.tableName;
+import {SQL_API} from '../constants/routes'
+const tableName = SQL_API.tableName;
 
 export default function converter(input, type, cartoDbId) {
     const tableItem = input;
