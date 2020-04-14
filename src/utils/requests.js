@@ -25,27 +25,13 @@ export async function insertUpdate(sql) {
     }));
 }
 
-export async function getByID(id) {
-    params.q = SQL_EXPRESSIONS.selectByid + id
-
-    return axios.get(`${SQL_API.url}`, { params })
-    .then(res => ({
-        status: res.status,
-        data: res.data.rows[0]
-    }))
-    .catch(e => ({
-        status: e.response.status,
-        data: e.response.data
-    }));
-}
-
 export async function getByColumn(columnName, value) {
     params.q = SQL_EXPRESSIONS.selectByColumn + `${columnName} = '${value}'`
 
     return axios.get(`${SQL_API.url}`, { params })
     .then(res => ({
         status: res.status,
-        data: res.data.rows[0]
+        data: res.data.rows
     }))
     .catch(e => ({
         status: e.response.status,
@@ -59,7 +45,7 @@ export async function getColumnsName() {
     return axios.get(`${SQL_API.url}`, { params })
     .then(res => ({
         status: res.status,
-        data: res.data.rows.map(row => row.column_name)
+        data: res.data.rows.map(row => row.column_name).filter((columnName) => !['the_geom_webmercator', 'the_geom', 'lon', 'lat'].includes(columnName))
     }))
     .catch(e => ({
         status: e.response.status,

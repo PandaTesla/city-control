@@ -40,7 +40,7 @@ export default function converter(input, type, cartoDbId) {
           value = "'" + value + "'";
         }
         if (value == null) {
-          value = "\"\""
+          value = 'NULL';
         }
         values.push(value);
       }

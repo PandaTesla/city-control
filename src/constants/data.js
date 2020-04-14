@@ -1,4 +1,5 @@
 export const FIELDS_HEB = {
+    cartodb_id: "מזהה",
     firstname: "שם פרטי",
     lastname: "שם משפחה",
     phone1: "טלפון ראשי",
