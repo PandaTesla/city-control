@@ -8,11 +8,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Set outputs
+        id: vars
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
       - uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: login to acr
         run: |
           az acr login --name ${{ secrets.REGISTRY }}
-          docker build -t "${{ secrets.REGISTRY }}.azurecr.io/${{ secrets.REPOSITORY }}/city-control:github-actions" .
-          docker push "${{ secrets.REGISTRY }}.azurecr.io/${{ secrets.REPOSITORY }}/city-control:github-actions"
+          echo "Image Tag = ${{ steps.vars.outputs.sha_short }}"
+          docker build -t "${{ secrets.REGISTRY }}.azurecr.io/${{ secrets.REPOSITORY }}/city-control:${{ steps.vars.outputs.sha_short }}" .
+          docker push "${{ secrets.REGISTRY }}.azurecr.io/${{ secrets.REPOSITORY }}/city-control:${{ steps.vars.outputs.sha_short }}"
