@@ -25,7 +25,7 @@ const defaultState = {
     comments: null,
 }
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles({
     card: {
         margin: '0 30px',
         marginTop: '20px'
@@ -33,7 +33,7 @@ const useStyles = makeStyles(theme => ({
     title: {
         position: 'relative',
     },
-  }));
+  });
 
 function Form(props) {
     const classes = useStyles();
@@ -67,7 +67,6 @@ function Form(props) {
         let newValues = { ...values };
         delete newValues.cartodb_id;
         delete newValues.the_geom_webmercator;
-        console.log(values.cartodb_id)
         let type = values.cartodb_id ? "UPDATE" : "INSERT";
         if (newValues.lon && newValues.lat)
             newValues["the_geom"] = `ST_SetSRID(ST_MakePoint(${newValues.lon}, ${newValues.lat}),4326)`
