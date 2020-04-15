@@ -20,6 +20,7 @@ export const FIELDS_HEB = {
 }
 
 export const FIELDS_TYPE = {
+    cartodb_id: "number",
     firstname: "text",
     lastname: "text",
     phone1: "text",
