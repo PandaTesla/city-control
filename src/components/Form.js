@@ -74,6 +74,9 @@ function Form(props) {
             newValues["the_geom"] = `ST_SetSRID(ST_MakePoint(${newValues.lon}, ${newValues.lat}),4326)`
         let res = await insertUpdate(converter([newValues], type));
         setResponse(res);
+        if(type === 'INSERT' && res.status < 400){
+            setValues(defaultState);
+        }
     };
 
     return (
