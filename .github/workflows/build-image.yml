@@ -1,0 +1,23 @@
+name: Build image from commit.
+on: [push]
+
+jobs:
+  build-and-push-to-acr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set outputs
+        id: vars
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: login to acr
+        run: |
+          az acr login --name ${{ secrets.REGISTRY }}
+          echo "Image Tag = ${{ steps.vars.outputs.sha_short }}"
+          docker build -t "${{ secrets.REGISTRY }}.azurecr.io/${{ secrets.REPOSITORY }}/city-control:${{ steps.vars.outputs.sha_short }}" .
+          docker push "${{ secrets.REGISTRY }}.azurecr.io/${{ secrets.REPOSITORY }}/city-control:${{ steps.vars.outputs.sha_short }}"
