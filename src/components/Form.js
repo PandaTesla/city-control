@@ -1,13 +1,15 @@
 import React, {useReducer, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, Button, Grid, Card, CardContent, CardActions, Snackbar } from '@material-ui/core';
+import { TextField, Button, Grid, Card, CardHeader, CardContent, CardActions, Snackbar } from '@material-ui/core';
+import { Save } from '@material-ui/icons';
 import { Alert } from '@material-ui/lab';
 import { FIELDS_HEB } from '../constants/data';
 import converter from '../utils/converter'
 import { insertUpdate } from '../utils/requests'
 
 const defaultState = {
+    cartodb_id: null,
     firstname: null,
     lastname: null,
     phone1: null,
@@ -26,7 +28,7 @@ const defaultState = {
     comments: null,
 }
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles({
     card: {
         margin: '0 30px',
         marginTop: '20px'
@@ -34,7 +36,7 @@ const useStyles = makeStyles(() => ({
     title: {
         position: 'relative',
     },
-  }));
+});
 
 function Form(props) {
     const classes = useStyles();
@@ -66,19 +68,21 @@ function Form(props) {
         // .filter( key => values[key] && key !== 'cartodb_id' && key !== 'the_geom_webmercator' )
         // .reduce( (res, key) => Object.assign(res, { [key]: values[key] }), {} ); // filters fields that not filled
         let newValues = { ...values };
-        delete newValues.cartodb_id;
         delete newValues.the_geom_webmercator;
-        console.log(values.cartodb_id)
-        let type = values.cartodb_id ? "UPDATE" : "INSERT";
+        let type = newValues.cartodb_id ? "UPDATE" : "INSERT";
         if (newValues.lon && newValues.lat)
             newValues["the_geom"] = `ST_SetSRID(ST_MakePoint(${newValues.lon}, ${newValues.lat}),4326)`
-        let res = await insertUpdate(converter(newValues, type, values.cartodb_id));
+        let res = await insertUpdate(converter([newValues], type));
         setResponse(res);
+        if(type === 'INSERT' && res.status < 400){
+            setValues(defaultState);
+        }
     };
 
     return (
         <>
             <Card raised className={classes.card}>
+                <CardHeader subheader={values.cartodb_id}/>
                 <CardContent>
                     <Grid container spacing={3}>
                         <Grid item xs>
@@ -278,7 +282,7 @@ function Form(props) {
                     </Grid>
                 </CardContent>
                 <CardActions>
-                    <Button variant="contained" color="primary" onClick={handleSaveClick}>
+                    <Button variant="contained" color="primary" startIcon={<Save/>} onClick={handleSaveClick}>
                         שמור
                     </Button>
                 </CardActions>
