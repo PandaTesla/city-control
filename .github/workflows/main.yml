@@ -1,9 +1,10 @@
-name: Lint and Test Charts
+name: Helm
 
 on: pull_request
 
 jobs:
-  lint-test:
+  helm-lint-and-install-testing:
+    name: helm-linting
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
