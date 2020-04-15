@@ -9,7 +9,7 @@ export default function converter(inputArr, type) {
   var values = [];
   const valueInserts = [];
 
-  tableItems.map((tableItem, i) => {
+  tableItems.map((tableItem) => {
     parseObject(tableItem, type, tableItem.cartodb_id);
   })
 
@@ -20,6 +20,8 @@ export default function converter(inputArr, type) {
 
     convertObject(tableItem)
     parseColumnInfo()
+    columns.shift();
+    values.shift();
     if (type === 'UPDATE') {
       const set = createSet(columns, values)
       query = `UPDATE ${tableName} SET ${set} WHERE cartodb_id = ${cartoDbId}`;
