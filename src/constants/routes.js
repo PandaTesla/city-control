@@ -5,7 +5,9 @@ export const AUTH = {
 
 export const SQL_API = {
     url: `https://cartodb.covid-97.com/user/${AUTH.userName}/api/v2/sql/`,
-    tableName: "elbit.wide_bridge_copy"
+    updateUrl: `https://cartodb.covid-97.com/user/${AUTH.userName}/api/v2/sql/job`,
+    tableName: "elbit.wide_bridge_copy",
+    tableNameForUpateInsert: "wide_bridge_copy"
 }
 
 export const SQL_EXPRESSIONS = {
