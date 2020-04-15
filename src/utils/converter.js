@@ -9,9 +9,9 @@ export default function converter(inputArr, type) {
   var values = [];
   const valueInserts = [];
 
-  tableItems.map((tableItem) => {
+  tableItems.forEach((tableItem) => {
     parseObject(tableItem, type, tableItem.cartodb_id);
-  })
+  });
 
   return valueInserts;
 
