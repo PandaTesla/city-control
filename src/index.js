@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { BrowserRouter as Router} from "react-router-dom";
 import { createMuiTheme, ThemeProvider, StylesProvider, jssPreset } from '@material-ui/core/styles';
 import { create } from 'jss';
 import rtl from 'jss-rtl';
@@ -30,7 +31,9 @@ ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <StylesProvider jss={jss}>
-        <App />
+        <Router>
+          <App />
+        </Router>
       </StylesProvider>
     </ThemeProvider>
   </React.StrictMode>,
