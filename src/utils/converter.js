@@ -38,11 +38,10 @@ export default function converter(inputArr, type) {
     for (var i in item) {
       columns.push(i);
       let value = item[i]
-      if (typeof value === 'string' && i !== "the_geom") {
-        value = "'" + value + "'";
-      }
-      if (value == null) {
+      if (!value && value !== 0) {
         value = 'NULL'
+      } else if (typeof value === 'string' && i !== "the_geom") {
+        value = "'" + value + "'";
       }
       values.push(value);
     }

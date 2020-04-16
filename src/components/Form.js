@@ -9,23 +9,23 @@ import converter from '../utils/converter'
 import { insertUpdate } from '../utils/requests'
 
 const defaultState = {
-    cartodb_id: null,
-    firstname: null,
-    lastname: null,
-    phone1: null,
-    phone2: null,
-    city: null,
-    street: null,
-    building: null,
-    entrance: null,
-    floor: null,
-    apartment: null,
-    familymembers: null,
-    lon: null,
-    lat: null,
-    deliverstatus: null,
-    numservingsdistributed: null,
-    comments: null,
+    cartodb_id: "",
+    firstname: "",
+    lastname: "",
+    phone1: "",
+    phone2: "",
+    city: "",
+    street: "",
+    building: "",
+    entrance: "",
+    floor: "",
+    apartment: "",
+    familymembers: "",
+    lon: "",
+    lat: "",
+    deliverstatus: "",
+    numservingsdistributed: "",
+    comments: "",
 }
 
 const useStyles = makeStyles({
@@ -59,8 +59,8 @@ function Form(props) {
 
     const handleChangeValue = event => {
         const name = event.target.name;
-        const newValue = event.target.type === 'number' ? event.target.valueAsNumber : event.target.value;
-        setValues({ [name]: newValue || null });
+        const newValue = (event.target.type === 'number') ? event.target.valueAsNumber : event.target.value;
+        setValues({ [name]: newValue });
     };
     
     const handleSaveClick = async () => {
@@ -88,7 +88,7 @@ function Form(props) {
                         <Grid item xs>
                             <TextField
                                 name='firstname'
-                                value={values['firstname'] || ""}
+                                value={values['firstname']}
                                 label={FIELDS_HEB['firstname']}
                                 fullWidth
                                 variant="outlined"
@@ -99,7 +99,7 @@ function Form(props) {
                         <Grid item xs>
                             <TextField
                                 name='lastname'
-                                value={values['lastname'] || ""}
+                                value={values['lastname']}
                                 label={FIELDS_HEB['lastname']}
                                 fullWidth
                                 variant="outlined"
@@ -112,7 +112,7 @@ function Form(props) {
                         <Grid item xs>
                             <TextField
                                 name='phone1'
-                                value={values['phone1'] || ""}
+                                value={values['phone1']}
                                 label={FIELDS_HEB['phone1']}
                                 fullWidth
                                 variant="outlined"
@@ -123,7 +123,7 @@ function Form(props) {
                         <Grid item xs>
                             <TextField
                                 name='phone2'
-                                value={values['phone2'] || ""}
+                                value={values['phone2']}
                                 label={FIELDS_HEB['phone2']}
                                 fullWidth
                                 variant="outlined"
@@ -136,7 +136,7 @@ function Form(props) {
                         <Grid item xs>
                             <TextField
                                 name='city'
-                                value={values['city'] || ""}
+                                value={values['city']}
                                 label={FIELDS_HEB['city']}
                                 fullWidth
                                 variant="outlined"
@@ -147,7 +147,7 @@ function Form(props) {
                         <Grid item xs={6}>
                             <TextField
                                 name='street'
-                                value={values['street'] || ""}
+                                value={values['street']}
                                 label={FIELDS_HEB['street']}
                                 fullWidth
                                 variant="outlined"
@@ -159,7 +159,7 @@ function Form(props) {
                             <TextField
                                 name='building'
                                 type='number'
-                                value={values['building'] || ""}
+                                value={values['building']}
                                 label={FIELDS_HEB['building']}
                                 fullWidth
                                 variant="outlined"
@@ -172,7 +172,7 @@ function Form(props) {
                         <Grid item xs>
                             <TextField
                                 name='entrance'
-                                value={values['entrance'] || ""}
+                                value={values['entrance']}
                                 label={FIELDS_HEB['entrance']}
                                 fullWidth
                                 variant="outlined"
@@ -184,7 +184,7 @@ function Form(props) {
                             <TextField
                                 name='floor'
                                 type='number'
-                                value={values['floor'] || ""}
+                                value={values['floor']}
                                 label={FIELDS_HEB['floor']}
                                 fullWidth
                                 variant="outlined"
@@ -196,7 +196,7 @@ function Form(props) {
                             <TextField
                                 name='apartment'
                                 type='number'
-                                value={values['apartment'] || ""}
+                                value={values['apartment']}
                                 label={FIELDS_HEB['apartment']}
                                 fullWidth
                                 variant="outlined"
@@ -208,7 +208,7 @@ function Form(props) {
                             <TextField
                                 name='familymembers'
                                 type='number'
-                                value={values['familymembers'] || ""}
+                                value={values['familymembers']}
                                 label={FIELDS_HEB['familymembers']}
                                 fullWidth
                                 variant="outlined"
@@ -222,7 +222,7 @@ function Form(props) {
                             <TextField
                                 name='lon'
                                 type='number'
-                                value={values['lon'] || ""}
+                                value={values['lon']}
                                 label={FIELDS_HEB['lon']}
                                 fullWidth
                                 variant="outlined"
@@ -234,7 +234,7 @@ function Form(props) {
                             <TextField
                                 name='lat'
                                 type='number'
-                                value={values['lat'] || ""}
+                                value={values['lat']}
                                 label={FIELDS_HEB['lat']}
                                 fullWidth
                                 variant="outlined"
@@ -248,7 +248,7 @@ function Form(props) {
                             <TextField
                                 name='deliverstatus'
                                 type='number'
-                                value={values['deliverstatus'] || ""}
+                                value={values['deliverstatus']}
                                 label={FIELDS_HEB['deliverstatus']}
                                 fullWidth
                                 variant="outlined"
@@ -260,7 +260,7 @@ function Form(props) {
                             <TextField
                                 name='numservingsdistributed'
                                 type='number'
-                                value={values['numservingsdistributed'] || ""}
+                                value={values['numservingsdistributed']}
                                 label={FIELDS_HEB['numservingsdistributed']}
                                 fullWidth
                                 variant="outlined"
@@ -271,7 +271,7 @@ function Form(props) {
                         <Grid item xs={6}>
                             <TextField
                                 name='comments'
-                                value={values['comments'] || ""}
+                                value={values['comments']}
                                 label={FIELDS_HEB['comments']}
                                 fullWidth
                                 variant="outlined"

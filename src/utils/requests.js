@@ -23,7 +23,11 @@ export async function insertUpdate(sql) {
 }
 
 export async function getByColumn(columnName, value) {
-    queryParams.q = SQL_EXPRESSIONS.selectByColumn + `${columnName} = '${value}'`
+    let valueExp;
+    if(!value && value !== 0)
+        valueExp = 'NULL';
+    else valueExp = `'${value}'`;
+    queryParams.q = SQL_EXPRESSIONS.selectByColumn + `${columnName} = ` + valueExp
 
     return axios.get(`${SQL_API.url}`, { params: queryParams })
     .then(res => ({

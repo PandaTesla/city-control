@@ -86,7 +86,7 @@ function Home() {
     }));
     let res = await insertUpdate(converter(afterEditAllArr, 'UPDATE'));
     setResponse(res);
-    handleSearch();
+    setMissions([]);
   }
 
   return (
@@ -124,7 +124,6 @@ function Home() {
               </FormControl>
               <FormControl className={classes.formControl}>
                 <TextField
-                    name='firstname'
                     value={searchValue}
                     onChange={e => setSearchValue(e.target.value)}
                     label={`הזן ${FIELDS_HEB[searchByCol] || "ערך"}`}
@@ -153,7 +152,6 @@ function Home() {
               </FormControl>
               <FormControl className={classes.formControl}>
                 <TextField
-                    name='firstname'
                     value={editValue}
                     onChange={e => setEditValue(e.target.value)}
                     label={`הזן ${FIELDS_HEB[editByCol] || "ערך"}`}
