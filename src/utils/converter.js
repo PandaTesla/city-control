@@ -1,5 +1,5 @@
 import {SQL_API} from '../constants/routes'
-const tableName = SQL_API.tableNameForUpateInsert;
+const tableName = SQL_API.tableNameForUpdateInsert;
 
 export default function converter(inputArr, type) {
   const tableItems = inputArr;

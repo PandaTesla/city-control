@@ -7,7 +7,7 @@ export const SQL_API = {
     url: `https://cartodb.covid-97.com/user/${AUTH.userName}/api/v2/sql/`,
     updateUrl: `https://cartodb.covid-97.com/user/${AUTH.userName}/api/v2/sql/job`,
     tableName: "elbit.wide_bridge_copy",
-    tableNameForUpateInsert: "wide_bridge_copy"
+    tableNameForUpdateInsert: "wide_bridge_copy"
 }
 
 export const SQL_EXPRESSIONS = {
@@ -18,4 +18,5 @@ export const SQL_EXPRESSIONS = {
 
 if (process.env.NODE_ENV === "production") {
     SQL_API.tableName = 'elbit.wide_bridge';
+    SQL_API.tableNameForUpdateInsert = "wide_bridge";
 }
