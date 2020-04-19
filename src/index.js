@@ -26,6 +26,14 @@ const theme = createMuiTheme({
       paper: '#455a64'
     }
   },
+  overrides: {
+    MuiDivider: {
+      root: {
+        marginTop: '10px',
+        marginBottom: '10px'
+      }
+    }
+  }
 });
 
 ReactDOM.render(

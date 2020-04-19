@@ -1,12 +1,14 @@
-import React, {useReducer, useEffect} from 'react';
+import React, {useReducer, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, Button, Grid, Card, CardHeader, CardContent, CardActions } from '@material-ui/core';
-import { Save } from '@material-ui/icons';
+import { TextField, Button, Grid, Card, CardHeader, CardContent, CardActions, Divider, Popover } from '@material-ui/core';
+import { Save, Map as MapIcon } from '@material-ui/icons';
 import { useSnackbar } from 'notistack';
 import { FIELDS_HEB } from '../constants/data';
-import converter from '../utils/converter'
-import { insertUpdate } from '../utils/requests'
+import converter from '../utils/converter';
+import { insertUpdate } from '../utils/requests';
+
+import LFMap from './LFMap';
 
 const defaultState = {
     cartodb_id: "",
@@ -36,10 +38,14 @@ const useStyles = makeStyles({
     title: {
         position: 'relative',
     },
-});
+    popover: {
+        position: 'relative',
+    }
+}); 
 
 function Form(props) {
     const classes = useStyles();
+    const [anchorEl, setAnchorEl] = useState(null);
     const [values, setValues] = useReducer((state, newState) => ({ ...state, ...newState }), defaultState);
 
     const { enqueueSnackbar } = useSnackbar();
@@ -71,6 +77,8 @@ function Form(props) {
             setValues(defaultState);
         }
     };
+
+    const openMap = Boolean(anchorEl);
 
     return (
         <>
@@ -125,6 +133,7 @@ function Form(props) {
                             />
                         </Grid>
                     </Grid>
+                    <Divider/>
                     <Grid container spacing={3}>
                         <Grid item xs>
                             <TextField
@@ -210,6 +219,7 @@ function Form(props) {
                             />
                         </Grid>
                     </Grid>
+                    <Divider/>
                     <Grid container spacing={3}>
                         <Grid item xs>
                             <TextField
@@ -235,7 +245,27 @@ function Form(props) {
                                 onChange={handleChangeValue}
                             />
                         </Grid>
+                        <Grid item xs={3}>
+                            <Button color="primary" startIcon={<MapIcon/>} onClick={(event) => setAnchorEl(event.currentTarget)}>
+                                בחר על המפה
+                            </Button>
+                            <Popover
+                                open={openMap}
+                                anchorEl={anchorEl}
+                                onClose={() => setAnchorEl(null)}
+                                anchorOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'left',
+                                  }}
+                                  transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
+                                  }}>
+                                <LFMap lon={values.lon} lat={values.lat} setPoint={(lon, lat) => setValues({ lon, lat})}/>
+                            </Popover>
+                        </Grid>
                     </Grid>
+                    <Divider/>
                     <Grid container spacing={3}>
                         <Grid item xs>
                             <TextField

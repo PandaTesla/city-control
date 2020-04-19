@@ -1,6 +1,6 @@
 import React,{useState, useEffect} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import {Typography, Button, Card, CardContent, Select, FormControl, InputLabel, TextField, Divider} from '@material-ui/core';
+import {Typography, Button, Card, CardContent, Select, FormControl, InputLabel, TextField} from '@material-ui/core';
 import {Edit, Search} from '@material-ui/icons';
 import { useSnackbar } from 'notistack';
 import { FIELDS_HEB, FIELDS_TYPE } from '../constants/data';
@@ -115,7 +115,6 @@ function EditPage() {
             </Button>
         </CardContent>
         </Card>
-        <Divider/>
         { missions.length > 0 && <div className={classes.editBar}>
             <Typography variant="h6">עדכן לכולם:</Typography>
             <FormControl variant="filled" size="small" className={classes.formControl}>
