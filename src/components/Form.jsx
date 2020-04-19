@@ -1,9 +1,9 @@
-import React, {useReducer, useEffect, useState} from 'react';
+import React, {useReducer, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, Button, Grid, Card, CardHeader, CardContent, CardActions, Snackbar } from '@material-ui/core';
+import { TextField, Button, Grid, Card, CardHeader, CardContent, CardActions } from '@material-ui/core';
 import { Save } from '@material-ui/icons';
-import { Alert } from '@material-ui/lab';
+import { useSnackbar } from 'notistack';
 import { FIELDS_HEB } from '../constants/data';
 import converter from '../utils/converter'
 import { insertUpdate } from '../utils/requests'
@@ -40,22 +40,13 @@ const useStyles = makeStyles({
 
 function Form(props) {
     const classes = useStyles();
-    const [response, setResponse] = useState(null);
-    const [notify, setNotify] = useState(false);
     const [values, setValues] = useReducer((state, newState) => ({ ...state, ...newState }), defaultState);
+
+    const { enqueueSnackbar } = useSnackbar();
 
     useEffect(() => {
         setValues(props.data || defaultState);
     }, [props.data]);
-    
-    useEffect(() => {
-        if(response)
-            setNotify(true);
-    }, [response]);
-
-    const handleNotifierClose = () => {
-        setNotify(false);
-    };
 
     const handleChangeValue = event => {
         const name = event.target.name;
@@ -73,7 +64,9 @@ function Form(props) {
         if (newValues.lon && newValues.lat)
             newValues["the_geom"] = `ST_SetSRID(ST_MakePoint(${newValues.lon}, ${newValues.lat}),4326)`
         let res = await insertUpdate(converter([newValues], type));
-        setResponse(res);
+        if (res.status < 400)
+            enqueueSnackbar("המשימה נשמרה בהצלחה!", { variant: 'success' });
+        else enqueueSnackbar("השמירה נכשלה", { variant: 'error' });
         if(type === 'INSERT' && res.status < 400){
             setValues(defaultState);
         }
@@ -287,16 +280,6 @@ function Form(props) {
                     </Button>
                 </CardActions>
             </Card>
-            <Snackbar open={notify} autoHideDuration={6000} onClose={handleNotifierClose}>
-                {(response && response.status < 400) ? 
-                    <Alert onClose={handleNotifierClose} severity="success">
-                        המשימה נשמרה בהצלחה!
-                    </Alert> :
-                    <Alert onClose={handleNotifierClose} severity="error">
-                        השמירה נכשלה
-                    </Alert>
-                }
-            </Snackbar>
         </>
     );
 }

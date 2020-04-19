@@ -1,9 +1,40 @@
 import axios from 'axios';
-import { AUTH, SQL_API, SQL_EXPRESSIONS } from '../constants/routes';
+import { AUTH, SQL_API, SQL_EXPRESSIONS, BASE_URL } from '../constants/routes';
 
 let queryParams = {
     q: null,
-    api_key: AUTH.apiKey,
+    api_key: AUTH.apiKey
+}
+
+export async function login (){
+    // const body = { username, password }
+    return axios.get(`${BASE_URL}/auth/oauth/cartodb`)//, body)
+    // .then(res => {
+    //     // localStorage.setItem('token', res.data.token);
+    //     // axios.defaults.headers.common.authorization = `bearer ${res.data.token}`;
+    //     return {
+    //         status: res.status,
+    //         data: res.data
+    //     }
+    // })
+    // .catch(e => ({
+    //     status: e.response.status,
+    //     data: e.response.data
+    // }));
+}
+
+export async function logout (){
+    // localStorage.removeItem('token');
+    // axios.defaults.headers.common.authorization = "";
+    return axios.get(`${BASE_URL}/auth/logout`)
+    .then(res => ({
+        status: res.status,
+        data: res.data
+    }))
+    .catch(e => ({
+        status: e.response.status,
+        data: e.response.data
+    }));
 }
 
 export async function insertUpdate(sql) {
@@ -51,6 +82,6 @@ export async function getColumnsName() {
     }))
     .catch(e => ({
         status: e.response.status,
-        data: e.response.data
+        data: [] //e.response.data
     }));
 }

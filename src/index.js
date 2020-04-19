@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router} from "react-router-dom";
 import { createMuiTheme, ThemeProvider, StylesProvider, jssPreset } from '@material-ui/core/styles';
+import { SnackbarProvider } from 'notistack';
 import { create } from 'jss';
 import rtl from 'jss-rtl';
 import './index.css';
@@ -31,9 +32,16 @@ ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <StylesProvider jss={jss}>
-        <Router>
-          <App />
-        </Router>
+        <SnackbarProvider
+          maxSnack={3}
+          anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'center',
+          }}>
+          <Router>
+            <App />
+          </Router>
+        </SnackbarProvider>
       </StylesProvider>
     </ThemeProvider>
   </React.StrictMode>,

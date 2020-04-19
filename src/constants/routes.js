@@ -1,13 +1,21 @@
+
 export const AUTH = {
     userName: "elbit",
     apiKey: "ca6b4cc11768c8d258787485a5c917fe2853bf30"
+}
+
+export const BASE_URL = (process.env.NODE_ENV === "production")? "https://city-control.api.covid-97.com" : "http://localhost:8080";
+
+export const API = {
+    url: `${BASE_URL}/sqlapi/user/${AUTH.userName}/api/v2/sql/`,
+    updateUrl: `${BASE_URL}/sqlapi/user/${AUTH.userName}/api/v2/sql/job`,
 }
 
 export const SQL_API = {
     url: `https://cartodb.covid-97.com/user/${AUTH.userName}/api/v2/sql/`,
     updateUrl: `https://cartodb.covid-97.com/user/${AUTH.userName}/api/v2/sql/job`,
     tableName: "elbit.wide_bridge_copy",
-    tableNameForUpateInsert: "wide_bridge_copy"
+    tableNameForUpdateInsert: "wide_bridge_copy"
 }
 
 export const SQL_EXPRESSIONS = {
@@ -18,4 +26,5 @@ export const SQL_EXPRESSIONS = {
 
 if (process.env.NODE_ENV === "production") {
     SQL_API.tableName = 'elbit.wide_bridge';
+    SQL_API.tableNameForUpdateInsert = "wide_bridge";
 }
