@@ -1,190 +1,113 @@
-import React,{useState, useEffect} from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import {AppBar, Toolbar, Typography, Button, Card, CardContent, Select, FormControl, InputLabel, TextField, Divider, Snackbar} from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
-import {Add, Edit, Search} from '@material-ui/icons';
-import './App.css';
-import { FIELDS_HEB, FIELDS_TYPE } from './constants/data';
-import converter from './utils/converter'
-import { getByColumn, getColumnsName, insertUpdate } from './utils/requests'
+import React, {useEffect} from 'react';
+import { Switch, Route, Redirect, Link, useLocation } from 'react-router-dom';
+import axios from 'axios';
+import { makeStyles, fade } from '@material-ui/core/styles';
+import { red } from "@material-ui/core/colors";
+import {AppBar, Toolbar, Typography, Button} from '@material-ui/core';
+import {Add, Edit} from '@material-ui/icons';
 
-import Form from './components/Form'
+import { logout } from './utils/requests'
 
-const useStyles = makeStyles({
-  card: {
-    width: '60%',
-    margin: '0 auto',
-    marginTop: '20px'
-  },
-  title: {
-    textAlign: 'center',
-    marginTop: 'inherit',
-  },
+import CreatePage from './components/CreatePage'
+import EditPage from './components/EditPage'
+import LoginPage from './components/LoginPage'
+
+const useStyles = makeStyles(theme => ({
   button: {
     marginLeft: '20px'
   },
-  searchBarCard:{
-    marginTop: '30px'
+  link: {
+    textDecoration: 'none'
   },
-  searchBar: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+  logoutLink: {
+    marginLeft: 'auto',
+    textDecoration: 'none'
   },
-  editBar: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'start',
-    marginTop: '30px',
-    marginLeft: '30px'
+  logoutBtn: {
+    color: red[400],
+    "&:hover": {
+      backgroundColor: fade(red[400], theme.palette.action.hoverOpacity),
+    },
   },
-  formControl:{
-    width: '200px',
-    marginLeft: '20px',
-  }
-});
+}));
+
+// eslint-disable-next-line react/prop-types
+function PrivateRoute({ children, token, ...rest }) {
+  return (
+    <Route {...rest}
+      render={({ location }) =>
+        (token || localStorage.getItem('token')) ? (children) : (
+          <Redirect
+            to={{
+              pathname: "/login",
+              state: { from: location }
+            }}
+          />)}
+    />
+  );
+}
+
+// A custom hook that builds on useLocation to parse
+// the query string for you.
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
 
 function App() {
   const classes = useStyles();
-  const [columns, setColumns] = useState([]);
-  const [searchByCol, setSearchByCol] = useState("");
-  const [searchValue, setSearchValue] = useState("");
-  const [editByCol, setEditByCol] = useState("");
-  const [editValue, setEditValue] = useState("");
-  const [missions, setMissions] = useState([]);
-  const [type, setType] = useState(1);
-  const [response, setResponse] = useState(null);
-  const [notify, setNotify] = useState(false);
-
+  const location = useLocation();
+  const query = useQuery();
+  
+  const tokenParam = query.get("token");
+  const localStorageToken = localStorage.getItem('token');
+  
   useEffect(() => {
-    async function fetchCols() {
-      let colNames = await getColumnsName();
-      setColumns(colNames.data);
-      setSearchByCol(colNames.data[0]);
-      setEditByCol(colNames.data[1]);
+    if(tokenParam){
+      localStorage.setItem('token', tokenParam);
     }
-    fetchCols();
-  }, [])
+  },[tokenParam]);
 
   useEffect(() => {
-    if(response)
-        setNotify(true);
-  }, [response]);
-
-  const handleNotifierClose = () => {
-      setNotify(false);
-  };
-  
-  const handleSearch = async () => {
-    let fetchRes = await getByColumn(searchByCol, searchValue);
-    setMissions(fetchRes.data)
-  }
-  
-  const handleEdit = async () => {
-    let afterEditAllArr = missions.map((mission) => ({ 
-      cartodb_id: mission.cartodb_id,
-      [editByCol]: editValue
-    }));
-    let res = await insertUpdate(converter(afterEditAllArr, 'UPDATE'));
-    setResponse(res);
-    handleSearch();
-  }
+    if(localStorageToken){
+      axios.defaults.headers.common.authorization = localStorageToken;
+    }
+  },[localStorageToken]);
 
   return (
     <>
-      <AppBar position="static">
+      { location.pathname !== '/login' && <AppBar position="static">
         <Toolbar>
           <Typography variant="h6">
             City Control
           </Typography>
-          <Button variant="contained" className={classes.button} color="secondary" startIcon={<Add/>} onClick={() => { setType(1); setMissions([]); }}>
-            צור משימה חדשה
-          </Button>
-          <Button variant="contained" className={classes.button} color="secondary" startIcon={<Edit/>} onClick={() => setType(2)}>
-            ערוך משימה קיימת
-          </Button>
+          <Link to="/" className={classes.link}>
+            <Button variant="contained" className={classes.button} color="secondary" startIcon={<Add/>}>
+              צור משימה חדשה
+            </Button>
+          </Link>
+          <Link to="/edit" className={classes.link}>
+            <Button variant="contained" className={classes.button} color="secondary" startIcon={<Edit/>}>
+              ערוך משימה קיימת
+            </Button>
+          </Link>
+          <Link to="/login" className={classes.logoutLink}>
+            <Button className={classes.logoutBtn} onClick={logout}>
+                <b>התנתק</b>
+            </Button>
+          </Link>
         </Toolbar>
-      </AppBar>
-      <Card className={classes.card}>
-        <Typography variant="h4" className={classes.title}>
-          {(type === 1)? "צור משימה חדשה" : "ערוך משימה קיימת"}
-        </Typography>
-        { type === 2 && <>
-          <Card raised className={classes.searchBarCard}>
-            <CardContent className={classes.searchBar}>
-              <Typography variant="h6">חפש לפי:</Typography>
-              <FormControl variant="filled" size="small" className={classes.formControl}>
-                <InputLabel>בחר שדה</InputLabel>
-                <Select
-                  native
-                  value={searchByCol}
-                  onChange={e => setSearchByCol(e.target.value)}
-                >
-                  {columns.map((col, i) => <option key={i} value={col}>{FIELDS_HEB[col]}</option>)}
-                </Select>
-              </FormControl>
-              <FormControl className={classes.formControl}>
-                <TextField
-                    name='firstname'
-                    value={searchValue}
-                    onChange={e => setSearchValue(e.target.value)}
-                    label={`הזן ${FIELDS_HEB[searchByCol] || "ערך"}`}
-                    type={FIELDS_TYPE[searchByCol]}
-                    variant="filled"
-                    size="small"
-                />
-              </FormControl>
-              <Button variant="contained" className={classes.button} color="secondary" startIcon={<Search/>} onClick={handleSearch}>
-                  חיפוש
-              </Button>
-            </CardContent>
-          </Card>
-          <Divider/>
-          { missions.length > 0 && <div className={classes.editBar}>
-              <Typography variant="h6">עדכן לכולם:</Typography>
-              <FormControl variant="filled" size="small" className={classes.formControl}>
-                <InputLabel>בחר שדה</InputLabel>
-                <Select
-                  native
-                  value={editByCol}
-                  onChange={e => setEditByCol(e.target.value)}
-                >
-                  {columns.slice(1).map((col, i) => <option key={i} value={col}>{FIELDS_HEB[col]}</option>)}
-                </Select>
-              </FormControl>
-              <FormControl className={classes.formControl}>
-                <TextField
-                    name='firstname'
-                    value={editValue}
-                    onChange={e => setEditValue(e.target.value)}
-                    label={`הזן ${FIELDS_HEB[editByCol] || "ערך"}`}
-                    type={FIELDS_TYPE[editByCol]}
-                    variant="filled"
-                    size="small"
-                />
-              </FormControl>
-              <Button variant="contained" className={classes.button} color="primary" startIcon={<Edit/>} onClick={handleEdit}>
-                   עדכן ושמור
-              </Button>
-            </div>}</>}
-        <CardContent>
-          {(type === 1)? <Form/> : 
-            <>
-              <Typography variant="subtitle1">{`תוצאות: ${missions.length}`}</Typography>
-              {missions.map((missionData, i) => <Form key={i} data={missionData}/>)}
-            </>}
-        </CardContent>
-      </Card>
-      <Snackbar open={notify} autoHideDuration={6000} onClose={handleNotifierClose}>
-          {(response && response.status < 400) ? 
-              <Alert onClose={handleNotifierClose} severity="success">
-                  השדה עודכן ונשמר לכולם בהצלחה!
-              </Alert> :
-              <Alert onClose={handleNotifierClose} severity="error">
-                  העדכון נכשל 
-              </Alert>
-          }
-      </Snackbar>
+      </AppBar> }
+      <Switch>
+        <Route path="/login">
+          <LoginPage/>
+        </Route>
+        <PrivateRoute exact path="/" token={tokenParam}>
+          <CreatePage/>
+        </PrivateRoute>
+        <PrivateRoute path="/edit">
+          <EditPage/>
+        </PrivateRoute>
+      </Switch>
     </>
   );
 }
