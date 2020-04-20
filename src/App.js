@@ -58,20 +58,17 @@ function App() {
   const location = useLocation();
   const query = useQuery();
   
-  const tokenParam = query.get("token");
-  const localStorageToken = localStorage.getItem('token');
-  
   useEffect(() => {
-    if(tokenParam){
-      localStorage.setItem('token', tokenParam);
+    if(query.get("token")){
+      localStorage.setItem('token', query.get("token"));
     }
-  },[tokenParam]);
+  },[query.get("token")]); // eslint-disable-line
 
   useEffect(() => {
-    if(localStorageToken){
-      axios.defaults.headers.common.authorization = localStorageToken;
+    if(localStorage.getItem('token')){
+      axios.defaults.headers.common.authorization = localStorage.getItem('token');
     }
-  },[localStorageToken]);
+  },[localStorage.getItem('token')]); // eslint-disable-line
 
   return (
     <>
@@ -101,7 +98,7 @@ function App() {
         <Route path="/login">
           <LoginPage/>
         </Route>
-        <PrivateRoute exact path="/" token={tokenParam}>
+        <PrivateRoute exact path="/" token={query.get("token")}>
           <CreatePage/>
         </PrivateRoute>
         <PrivateRoute path="/edit">
