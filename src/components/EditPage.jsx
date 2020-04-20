@@ -69,7 +69,7 @@ function EditPage() {
       }
     }
     fetchCols();
-  }, [])
+  }, [history])
   
   const handleSearch = async () => {
     let fetchRes = await getByColumn(searchByCol, searchValue);

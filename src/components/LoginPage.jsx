@@ -43,7 +43,7 @@ function CartoIcon(props){
 function Login() {
   const classes = useStyles();
 
-  const handleLogin = async () => {
+  const handleLogin = () => {
     window.location = CARTO_OAUTH;
   }
 

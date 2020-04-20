@@ -268,7 +268,7 @@ function Form(props) {
                                     vertical: 'top',
                                     horizontal: 'right',
                                   }}>
-                                <LFMap lon={values.lon} lat={values.lat} setPoint={(lon, lat) => setValues({ lon, lat})}/>
+                                <LFMap lon={Number(values.lon)} lat={Number(values.lat)} setPoint={(lon, lat) => setValues({ lon, lat})}/>
                             </Popover>
                         </Grid>
                     </Grid>

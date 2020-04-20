@@ -57,18 +57,21 @@ function App() {
   const classes = useStyles();
   const location = useLocation();
   const query = useQuery();
+  
+  const tokenParam = query.get("token");
+  const localStorageToken = localStorage.getItem('token');
+  
+  useEffect(() => {
+    if(tokenParam){
+      localStorage.setItem('token', tokenParam);
+    }
+  },[tokenParam]);
 
   useEffect(() => {
-    if(query.get("token")){
-      localStorage.setItem('token', query.get("token"));
+    if(localStorageToken){
+      axios.defaults.headers.common.authorization = localStorageToken;
     }
-  },[query.get("token")]);
-
-  useEffect(() => {
-    if(localStorage.getItem('token')){
-      axios.defaults.headers.common.authorization = localStorage.getItem('token');
-    }
-  },[localStorage.getItem('token')]);
+  },[localStorageToken]);
 
   return (
     <>
@@ -98,7 +101,7 @@ function App() {
         <Route path="/login">
           <LoginPage/>
         </Route>
-        <PrivateRoute exact path="/" token={query.get("token")}>
+        <PrivateRoute exact path="/" token={tokenParam}>
           <CreatePage/>
         </PrivateRoute>
         <PrivateRoute path="/edit">

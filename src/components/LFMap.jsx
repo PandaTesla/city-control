@@ -22,7 +22,7 @@ function LFMap(props) {
             setLat(props.lat);
             setZoom(18);
         }
-    }, [])
+    }, [props.lon, props.lat])
 
     const handleMarkMoveEnd = (event) => {
         const {lat, lng} = event.target._latlng
