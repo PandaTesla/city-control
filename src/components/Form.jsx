@@ -1,12 +1,13 @@
 import React, {useReducer, useEffect, useState} from 'react';
+import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import { TextField, Button, Grid, Card, CardHeader, CardContent, CardActions, Divider, Popover } from '@material-ui/core';
 import { Save, Map as MapIcon } from '@material-ui/icons';
 import { useSnackbar } from 'notistack';
-import { FIELDS_HEB } from '../constants/data';
+import { FIELDS_HEB, BACKEND_AUTH_ERROR_MESSAGE } from '../constants/data';
 import converter from '../utils/converter';
-import { insertUpdate } from '../utils/requests';
+import { insertUpdate, logout } from '../utils/requests';
 
 import LFMap from './LFMap';
 
@@ -49,6 +50,7 @@ function Form(props) {
     const [values, setValues] = useReducer((state, newState) => ({ ...state, ...newState }), defaultState);
 
     const { enqueueSnackbar } = useSnackbar();
+    const history = useHistory();
 
     useEffect(() => {
         setValues(props.data || defaultState);
@@ -70,11 +72,16 @@ function Form(props) {
         if (newValues.lon && newValues.lat)
             newValues["the_geom"] = `ST_SetSRID(ST_MakePoint(${newValues.lon}, ${newValues.lat}),4326)`
         let res = await insertUpdate(converter([newValues], type));
-        if (res.status < 400)
+        if (res.status < 400){
+            if(type === 'INSERT')
+                setValues(defaultState);
             enqueueSnackbar("המשימה נשמרה בהצלחה!", { variant: 'success' });
-        else enqueueSnackbar("השמירה נכשלה", { variant: 'error' });
-        if(type === 'INSERT' && res.status < 400){
-            setValues(defaultState);
+        } else {
+            enqueueSnackbar("השמירה נכשלה", { variant: 'error' });
+            if(res.status === 401 || res.data.reason === BACKEND_AUTH_ERROR_MESSAGE){
+                logout();
+                history.push("/login");
+            }
         }
     };
 

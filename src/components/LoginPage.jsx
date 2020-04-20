@@ -1,32 +1,30 @@
 import React from 'react';
-import { useHistory } from "react-router-dom";
 import { makeStyles } from '@material-ui/core/styles';
 import {Typography, Button, Avatar, Container, Card, CardContent, SvgIcon} from '@material-ui/core';
 import { LockOutlined } from '@material-ui/icons';
 import { blue } from "@material-ui/core/colors";
-import { useSnackbar } from 'notistack';
-import { login } from '../utils/requests';
+import { CARTO_OAUTH } from '../constants/routes';
 
 
 const useStyles = makeStyles(theme => ({
   paper: {
-      marginTop: theme.spacing(8),
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-    },
-    avatar: {
-      margin: theme.spacing(1),
-      backgroundColor: theme.palette.secondary.main,
-    },
-    login: {
-      margin: theme.spacing(3, 0, 2),
-      color: theme.palette.getContrastText(blue[600]),
-      backgroundColor: blue[600],
-      "&:hover": {
-        backgroundColor: blue[800],
-      }
-    },
+    marginTop: theme.spacing(8),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  avatar: {
+    margin: theme.spacing(1),
+    backgroundColor: theme.palette.secondary.main,
+  },
+  login: {
+    margin: theme.spacing(3, 0, 2),
+    color: theme.palette.getContrastText('#047ae6'),
+    backgroundColor: '#047ae6',
+    "&:hover": {
+      backgroundColor: blue[800],
+    }
+  },
 }));
 
 function CartoIcon(props){
@@ -45,14 +43,8 @@ function CartoIcon(props){
 function Login() {
   const classes = useStyles();
 
-  const history = useHistory();
-  const { enqueueSnackbar } = useSnackbar();
-
   const handleLogin = async () => {
-    let res = await login();
-    if (res.status < 400)
-      history.push("/");
-    else enqueueSnackbar("שם משתמש או סיסמה שגויים", { variant: 'error' });
+    window.location = CARTO_OAUTH;
   }
 
   return (

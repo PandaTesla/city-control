@@ -1,11 +1,12 @@
 import React,{useState, useEffect} from 'react';
+import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import {Typography, Button, Card, CardContent, Select, FormControl, InputLabel, TextField} from '@material-ui/core';
 import {Edit, Search} from '@material-ui/icons';
 import { useSnackbar } from 'notistack';
-import { FIELDS_HEB, FIELDS_TYPE } from '../constants/data';
+import { FIELDS_HEB, FIELDS_TYPE, BACKEND_AUTH_ERROR_MESSAGE } from '../constants/data';
 import converter from '../utils/converter'
-import { getByColumn, getColumnsName, insertUpdate } from '../utils/requests'
+import { getByColumn, getColumnsName, insertUpdate, logout } from '../utils/requests'
 
 import Form from './Form'
 
@@ -53,20 +54,31 @@ function EditPage() {
   const [missions, setMissions] = useState([]);
 
   const { enqueueSnackbar } = useSnackbar();
+  const history = useHistory();
 
   useEffect(() => {
     async function fetchCols() {
-      let colNames = await getColumnsName();
-      setColumns(colNames.data);
-      setSearchByCol(colNames.data[0]);
-      setEditByCol(colNames.data[1]);
+      let colNamesRes = await getColumnsName();
+      if(colNamesRes.status < 400){
+        setColumns(colNamesRes.data);
+        setSearchByCol(colNamesRes.data[0]);
+        setEditByCol(colNamesRes.data[1]);
+      } else if(colNamesRes.status === 401 || colNamesRes.data.reason === BACKEND_AUTH_ERROR_MESSAGE){
+        logout();
+        history.push("/login");
+      }
     }
     fetchCols();
   }, [])
   
   const handleSearch = async () => {
     let fetchRes = await getByColumn(searchByCol, searchValue);
-    setMissions(fetchRes.data)
+    if(fetchRes.status < 400)
+      setMissions(fetchRes.data)
+    else if(fetchRes.status === 401 || fetchRes.data.reason === BACKEND_AUTH_ERROR_MESSAGE){
+      logout();
+      history.push("/login");
+    } else enqueueSnackbar("החיפוש נכשל, נסה שוב", { variant: 'error' });
   }
   
   const handleEdit = async () => {
@@ -75,10 +87,17 @@ function EditPage() {
       [editByCol]: editValue
     }));
     let res = await insertUpdate(converter(afterEditAllArr, 'UPDATE'));
-    if (res.status < 400)
-        enqueueSnackbar("השדה עודכן ונשמר לכולם בהצלחה!", { variant: 'success' });
-    else enqueueSnackbar("העדכון נכשל", { variant: 'error' });
-    setMissions([]);
+    if (res.status < 400){
+      enqueueSnackbar("השדה עודכן ונשמר לכולם בהצלחה!", { variant: 'success' });
+      setMissions([]);
+    }
+    else {
+      enqueueSnackbar("העדכון נכשל", { variant: 'error' });
+      if(res.status === 401 || res.data.reason === BACKEND_AUTH_ERROR_MESSAGE){
+        logout();
+        history.push("/login");
+      }
+    }
   }
 
   return (

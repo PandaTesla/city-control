@@ -38,3 +38,5 @@ export const FIELDS_TYPE = {
     numservingsdistributed: "number",
     comments: "text",
 }
+
+export const BACKEND_AUTH_ERROR_MESSAGE = "missing Authorization header";
