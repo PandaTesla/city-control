@@ -2,7 +2,7 @@ import React, {useReducer, useEffect, useState} from 'react';
 import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
-import { TextField, Button, Grid, Card, CardHeader, CardContent, CardActions, Divider, Popover } from '@material-ui/core';
+import { TextField, Button, Grid, Card, CardHeader, CardContent, CardActions, Divider, Popover, CircularProgress } from '@material-ui/core';
 import { Save, Map as MapIcon } from '@material-ui/icons';
 import { useSnackbar } from 'notistack';
 import { FIELDS_HEB, BACKEND_AUTH_ERROR_MESSAGE } from '../constants/data';
@@ -47,6 +47,7 @@ const useStyles = makeStyles({
 function Form(props) {
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = useState(null);
+    const [loading, setLoading] = useState(false);
     const [values, setValues] = useReducer((state, newState) => ({ ...state, ...newState }), defaultState);
 
     const { enqueueSnackbar } = useSnackbar();
@@ -71,7 +72,9 @@ function Form(props) {
         let type = newValues.cartodb_id ? "UPDATE" : "INSERT";
         if (newValues.lon && newValues.lat)
             newValues["the_geom"] = `ST_SetSRID(ST_MakePoint(${newValues.lon}, ${newValues.lat}),4326)`
+        setLoading(true);
         let res = await insertUpdate(converter([newValues], type));
+        setLoading(false);
         if (res.status < 400){
             if(type === 'INSERT')
                 setValues(defaultState);
@@ -312,7 +315,12 @@ function Form(props) {
                     </Grid>
                 </CardContent>
                 <CardActions>
-                    <Button variant="contained" color="primary" startIcon={<Save/>} onClick={handleSaveClick}>
+                    <Button 
+                        variant="contained"
+                        color="primary"
+                        disabled={loading}
+                        startIcon={loading ? <CircularProgress size={24}/> : <Save/>}
+                        onClick={handleSaveClick}>
                         שמור
                     </Button>
                 </CardActions>

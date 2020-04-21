@@ -1,6 +1,6 @@
-import React from 'react';
+import React,{ useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import {Typography, Button, Avatar, Container, Card, CardContent, SvgIcon} from '@material-ui/core';
+import {Typography, Button, Avatar, Container, Card, CardContent, SvgIcon, CircularProgress} from '@material-ui/core';
 import { LockOutlined } from '@material-ui/icons';
 import { blue } from "@material-ui/core/colors";
 import { CARTO_OAUTH } from '../constants/routes';
@@ -25,6 +25,9 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: blue[800],
     }
   },
+  progress: {
+    color: '#047ae6'
+  }
 }));
 
 function CartoIcon(props){
@@ -42,8 +45,10 @@ function CartoIcon(props){
 
 function Login() {
   const classes = useStyles();
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = () => {
+    setLoading(true);
     window.location = CARTO_OAUTH;
   }
 
@@ -53,7 +58,12 @@ function Login() {
         <Avatar className={classes.avatar}><LockOutlined/></Avatar>
         <Typography variant="h5">התחברות</Typography>
         <CardContent>
-          <Button variant="contained" className={classes.login} startIcon={<CartoIcon/>} onClick={handleLogin}>
+          <Button
+            variant="contained"
+            className={classes.login}
+            disabled={loading}
+            startIcon={loading ? <CircularProgress className={classes.progress} size={24}/> : <CartoIcon/>}
+            onClick={handleLogin}>
             התחבר עם Carto
           </Button>
         </CardContent>
