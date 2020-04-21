@@ -1,7 +1,7 @@
 import React,{useState, useEffect} from 'react';
 import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
-import {Typography, Button, Card, CardContent, Select, FormControl, InputLabel, TextField} from '@material-ui/core';
+import {Typography, Button, Card, CardContent, Select, FormControl, InputLabel, TextField, CircularProgress, LinearProgress} from '@material-ui/core';
 import {Edit, Search} from '@material-ui/icons';
 import { useSnackbar } from 'notistack';
 import { FIELDS_HEB, FIELDS_TYPE, BACKEND_AUTH_ERROR_MESSAGE } from '../constants/data';
@@ -49,8 +49,10 @@ function EditPage() {
   const [columns, setColumns] = useState([]);
   const [searchByCol, setSearchByCol] = useState("");
   const [searchValue, setSearchValue] = useState("");
+  const [loadingSearch, setLoadingSearch] = useState(false);
   const [editByCol, setEditByCol] = useState("");
   const [editValue, setEditValue] = useState("");
+  const [loadingEdit, setLoadingEdit] = useState(false);
   const [missions, setMissions] = useState([]);
 
   const { enqueueSnackbar } = useSnackbar();
@@ -72,7 +74,9 @@ function EditPage() {
   }, [history])
   
   const handleSearch = async () => {
+    setLoadingSearch(true);
     let fetchRes = await getByColumn(searchByCol, searchValue);
+    setLoadingSearch(false);
     if(fetchRes.status < 400)
       setMissions(fetchRes.data)
     else if(fetchRes.status === 401 || fetchRes.data.reason === BACKEND_AUTH_ERROR_MESSAGE){
@@ -86,7 +90,9 @@ function EditPage() {
       cartodb_id: mission.cartodb_id,
       [editByCol]: editValue
     }));
+    setLoadingEdit(true);
     let res = await insertUpdate(converter(afterEditAllArr, 'UPDATE'));
+    setLoadingEdit(false);
     if (res.status < 400){
       enqueueSnackbar("השדה עודכן ונשמר לכולם בהצלחה!", { variant: 'success' });
       setMissions([]);
@@ -107,32 +113,39 @@ function EditPage() {
           ערוך משימה קיימת
         </Typography>
         <Card raised className={classes.searchBarCard}>
-        <CardContent className={classes.searchBar}>
-            <Typography variant="h6">חפש לפי:</Typography>
-            <FormControl variant="filled" size="small" className={classes.formControl}>
-            <InputLabel>בחר שדה</InputLabel>
-            <Select
-                native
-                value={searchByCol}
-                onChange={e => setSearchByCol(e.target.value)}
-            >
-                {columns.map((col, i) => <option key={i} value={col}>{FIELDS_HEB[col]}</option>)}
-            </Select>
-            </FormControl>
-            <FormControl className={classes.formControl}>
-            <TextField
-                value={searchValue}
-                onChange={e => setSearchValue(e.target.value)}
-                label={`הזן ${FIELDS_HEB[searchByCol] || "ערך"}`}
-                type={FIELDS_TYPE[searchByCol]}
-                variant="filled"
-                size="small"
-            />
-            </FormControl>
-            <Button variant="contained" className={classes.button} color="secondary" startIcon={<Search/>} onClick={handleSearch}>
-                חיפוש
-            </Button>
-        </CardContent>
+          <CardContent className={classes.searchBar}>
+              <Typography variant="h6">חפש לפי:</Typography>
+              <FormControl variant="filled" size="small" className={classes.formControl}>
+              <InputLabel>בחר שדה</InputLabel>
+              <Select
+                  native
+                  value={searchByCol}
+                  onChange={e => setSearchByCol(e.target.value)}
+                  >
+                  {columns.map((col, i) => <option key={i} value={col}>{FIELDS_HEB[col]}</option>)}
+              </Select>
+              </FormControl>
+              <FormControl className={classes.formControl}>
+              <TextField
+                  value={searchValue}
+                  onChange={e => setSearchValue(e.target.value)}
+                  label={`הזן ${FIELDS_HEB[searchByCol] || "ערך"}`}
+                  type={FIELDS_TYPE[searchByCol]}
+                  variant="filled"
+                  size="small"
+              />
+              </FormControl>
+              <Button
+                variant="contained"
+                className={classes.button}
+                disabled={loadingSearch}
+                color="secondary"
+                startIcon={<Search/>}
+                onClick={handleSearch}>
+                  חיפוש
+              </Button>
+          </CardContent>
+          {loadingSearch && <LinearProgress color="secondary"/>}
         </Card>
         { missions.length > 0 && <div className={classes.editBar}>
             <Typography variant="h6">עדכן לכולם:</Typography>
@@ -156,7 +169,13 @@ function EditPage() {
                 size="small"
             />
             </FormControl>
-            <Button variant="contained" className={classes.button} color="primary" startIcon={<Edit/>} onClick={handleEdit}>
+            <Button 
+              variant="contained"
+              className={classes.button}
+              color="primary"
+              disabled={loadingEdit}
+              startIcon={loadingEdit ? <CircularProgress size={24}/> : <Edit/>}
+              onClick={handleEdit}>
                 עדכן ושמור
             </Button>
         </div>}
