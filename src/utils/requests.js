@@ -9,11 +9,11 @@ let queryParams = {
 
 
 export async function insertUpdate(sql) {
-    const body = { query: sql };
+    const body = { q: sql };
     // eslint-disable-next-line no-unused-vars
     const {q, ...queryPost} = queryParams;
 
-    return axios.post(`${API.updateUrl}`, body, { params: queryPost })
+    return axios.post(`${API.url}`, body, { params: queryPost })
     .then(res => {
         localStorage.setItem('token', res.config.headers.authorization);
         axios.defaults.headers.common.authorization = res.config.headers.authorization;
