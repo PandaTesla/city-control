@@ -1,17 +1,12 @@
 import {SQL_API} from '../constants/routes'
 const tableName = SQL_API.tableNameForUpdateInsert;
 
-export function convertAll(search, update) {
-  const updateField = Object.keys(update)[0];
-  let updateValue = Object.values(update)[0];
-  const searchField = Object.keys(search)[0];
-  const searchValue = Object.values(search)[0];
-  
+export function convertAll(searchField, searchValue, updateField, updateValue) {
   if (!updateValue && updateValue !== 0) { updateValue = "NULL" }
   return `UPDATE ${tableName} SET ${updateField} = '${updateValue}' WHERE ${searchField} = '${searchValue}'`;
 }
 
-export default function convertOne(input, type, cartoDbId) {
+export function convertOne(input, type, cartoDbId) {
   const tableItem = input;
   var columns = [];
   var columnTypes = [];
@@ -32,7 +27,7 @@ export default function convertOne(input, type, cartoDbId) {
     parseColumnInfo()
     if (type === 'UPDATE') {
       const set = createSet(columns, values)
-      query = `UPDATE ${tableName} SET ${set} WHERE Cartodbid = ${cartoDbId}`;
+      query = `UPDATE ${tableName} SET ${set} WHERE cartodb_id = ${cartoDbId}`;
     }
     else {
       query = `INSERT INTO ${tableName} (${columns}) VALUES (${values})`
