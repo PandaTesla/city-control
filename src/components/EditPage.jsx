@@ -1,12 +1,12 @@
-import React,{useState, useEffect, useReducer} from 'react';
+import React,{useState, useReducer} from 'react';
 import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import {Typography, Button, Card, CardContent, Select, FormControl, InputLabel, TextField, CircularProgress, LinearProgress} from '@material-ui/core';
 import {Edit, Search} from '@material-ui/icons';
 import { useSnackbar } from 'notistack';
-import { FIELDS_HEB, FIELDS_TYPE, BACKEND_AUTH_ERROR_MESSAGE } from '../constants/data';
+import { FIELDS, FIELDS_HEB, FIELDS_TYPE } from '../constants/data';
 import { convertAll } from '../utils/converter'
-import { getByColumn, getColumnsName, insertUpdate, logout } from '../utils/requests'
+import { getByColumn, insertUpdate, logout } from '../utils/requests'
 
 import Form from './Form'
 
@@ -46,15 +46,14 @@ const useStyles = makeStyles({
 
 function EditPage() {
   const classes = useStyles();
-  const [columns, setColumns] = useState([]);
   const [missions, setMissions] = useState([]);
   const [search, setSearch] = useReducer((state, newState) => ({ ...state, ...newState }), {
-    column: "",
+    column: FIELDS[0],
     value: "",
     loading: false
   });
   const [editAll, setEditAll] = useReducer((state, newState) => ({ ...state, ...newState }), {
-    column: "",
+    column: FIELDS[1],
     value: "",
     search_col: "",
     search_val: "",
@@ -63,21 +62,6 @@ function EditPage() {
 
   const { enqueueSnackbar } = useSnackbar();
   const history = useHistory();
-
-  useEffect(() => {
-    async function fetchCols() {
-      let colNamesRes = await getColumnsName();
-      if(colNamesRes.status < 400){
-        setColumns(colNamesRes.data);
-        setSearch({column: colNamesRes.data[0]});
-        setEditAll({column: colNamesRes.data[1]});
-      } else if(colNamesRes.status === 401 || colNamesRes.data.reason === BACKEND_AUTH_ERROR_MESSAGE){
-        logout();
-        history.push("/login");
-      }
-    }
-    fetchCols();
-  }, [history])
   
   const handleSearch = async (event) => {
     event.preventDefault();
@@ -90,14 +74,13 @@ function EditPage() {
         search_col: search.column,
         search_val: search.value
       })
-    } else if(fetchRes.status === 401 || fetchRes.data.reason === BACKEND_AUTH_ERROR_MESSAGE){
+    } else if(fetchRes.status === 401){
       logout();
       history.push("/login");
     } else enqueueSnackbar("החיפוש נכשל, נסה שוב", { variant: 'error' });
   }
   
-  const handleEdit = async (event) => {
-    event.preventDefault();
+  const handleEdit = async () => {
     setEditAll({loading: true});
     let res = await insertUpdate(convertAll(editAll.search_col, editAll.search_val, editAll.column, editAll.value));
     setEditAll({loading: false});
@@ -107,7 +90,7 @@ function EditPage() {
     }
     else {
       enqueueSnackbar("העדכון נכשל", { variant: 'error' });
-      if(res.status === 401 || res.data.reason === BACKEND_AUTH_ERROR_MESSAGE){
+      if(res.status === 401){
         logout();
         history.push("/login");
       }
@@ -131,7 +114,7 @@ function EditPage() {
                       value={search.column}
                       onChange={e => setSearch({column: e.target.value})}
                       >
-                      {columns.map((col, i) => <option key={i} value={col}>{FIELDS_HEB[col]}</option>)}
+                      {FIELDS.filter(fld => !["lon", "lat"].includes(fld)).map((fld, i) => <option key={i} value={fld}>{FIELDS_HEB[fld]}</option>)}
                   </Select>
                 </FormControl>
                 <FormControl className={classes.formControl}>
@@ -158,7 +141,7 @@ function EditPage() {
           </CardContent>
           {search.loading && <LinearProgress color="secondary"/>}
         </Card>
-        { missions.length > 0 && <form onSubmit={handleEdit} className={classes.editBar}>
+        { missions.length > 0 && <div className={classes.editBar}>
             <Typography variant="h6">עדכן לכולם:</Typography>
             <FormControl variant="filled" size="small" className={classes.formControl}>
               <InputLabel>בחר שדה</InputLabel>
@@ -167,7 +150,7 @@ function EditPage() {
                   value={editAll.column}
                   onChange={e => setEditAll({column: e.target.value})}
               >
-                  {columns.slice(1).map((col, i) => <option key={i} value={col}>{FIELDS_HEB[col]}</option>)}
+                  {FIELDS.slice(1).map((fld, i) => <option key={i} value={fld}>{FIELDS_HEB[fld]}</option>)}
               </Select>
             </FormControl>
             <FormControl className={classes.formControl}>
@@ -186,10 +169,11 @@ function EditPage() {
               className={classes.button}
               color="primary"
               disabled={editAll.loading}
-              startIcon={editAll.loading ? <CircularProgress size={24}/> : <Edit/>}>
+              startIcon={editAll.loading ? <CircularProgress size={24}/> : <Edit/>}
+              onClick={handleEdit}>
                 עדכן ושמור
             </Button>
-        </form>}
+        </div>}
         <CardContent>
             <Typography variant="subtitle1">{`תוצאות: ${missions.length}`}</Typography>
             {missions.map((missionData, i) => <Form key={i} data={missionData}/>)}

@@ -66,7 +66,7 @@ function App() {
 
   useEffect(() => {
     if(localStorage.getItem('token')){
-      axios.defaults.headers.common.authorization = localStorage.getItem('token');
+      axios.defaults.headers.common.Authorization = localStorage.getItem('token');
     }
   },[localStorage.getItem('token')]); // eslint-disable-line
 

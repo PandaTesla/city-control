@@ -1,3 +1,5 @@
+export const FIELDS = ["cartodb_id", "firstname", "lastname", "phone1", "phone2", "city", "street", "building", "entrance", "floor", "apartment", "familymembers", "lon", "lat", "deliverstatus", "numservingsdistributed", "comments"]
+
 export const FIELDS_HEB = {
     cartodb_id: "מזהה",
     firstname: "שם פרטי",
@@ -38,5 +40,3 @@ export const FIELDS_TYPE = {
     numservingsdistributed: "number",
     comments: "text",
 }
-
-export const BACKEND_AUTH_ERROR_MESSAGE = "missing Authorization header";
