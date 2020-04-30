@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { API, SQL_EXPRESSIONS } from '../constants/routes';
 
-axios.defaults.headers.common.authorization = localStorage.getItem('token');
+axios.defaults.headers.common.Authorization = localStorage.getItem('token');
 
 let queryParams = {
     q: null
@@ -15,8 +15,8 @@ export async function insertUpdate(sql) {
 
     return axios.post(`${API.url}`, body, { params: queryPost })
     .then(res => {
-        localStorage.setItem('token', res.config.headers.authorization);
-        axios.defaults.headers.common.authorization = res.config.headers.authorization;
+        localStorage.setItem('token', res.headers.authorization);
+        axios.defaults.headers.common.Authorization = res.headers.authorization;
         return {
             status: res.status,
             data: res.data
@@ -37,8 +37,8 @@ export async function getByColumn(columnName, value) {
 
     return axios.get(`${API.url}`, { params: queryParams })
     .then(res => {
-        localStorage.setItem('token', res.config.headers.authorization);
-        axios.defaults.headers.common.authorization = res.config.headers.authorization;
+        localStorage.setItem('token', res.headers.authorization);
+        axios.defaults.headers.common.Authorization = res.headers.authorization;
         return {
             status: res.status,
             data: res.data.rows
@@ -54,8 +54,8 @@ export async function getColumnsName() {
     queryParams.q = SQL_EXPRESSIONS.selectColumnsNames
     return axios.get(`${API.url}`, { params: queryParams })
     .then(res => {
-        localStorage.setItem('token', res.config.headers.authorization);
-        axios.defaults.headers.common.authorization = res.config.headers.authorization;
+        localStorage.setItem('token', res.headers.authorization);
+        axios.defaults.headers.common.Authorization = res.headers.authorization;
         return {
             status: res.status,
             data: res.data.rows.map(row => row.column_name)
@@ -70,5 +70,5 @@ export async function getColumnsName() {
 
 export function logout() {
     localStorage.removeItem('token');
-    delete axios.defaults.headers.common.authorization;
+    delete axios.defaults.headers.common.Authorization;
 }
