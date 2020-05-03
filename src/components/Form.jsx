@@ -6,8 +6,7 @@ import { TextField, Button, Grid, Card, CardHeader, CardContent, CardActions, Di
 import { Save, Map as MapIcon } from '@material-ui/icons';
 import { useSnackbar } from 'notistack';
 import { FIELDS_HEB } from '../constants/data';
-import { convertOne } from '../utils/converter';
-import { insertUpdate, logout } from '../utils/requests';
+import { insert, update, logout } from '../utils/requests';
 
 import LFMap from './LFMap';
 
@@ -70,14 +69,16 @@ function Form(props) {
         let newValues = { ...values };
         delete newValues.the_geom_webmercator;
         delete newValues.cartodb_id;
-        let type = values.cartodb_id ? "UPDATE" : "INSERT";
         if (newValues.lon && newValues.lat)
             newValues["the_geom"] = `ST_SetSRID(ST_MakePoint(${newValues.lon}, ${newValues.lat}),4326)`
         setLoading(true);
-        let res = await insertUpdate(convertOne(newValues, type, values.cartodb_id));
+        let res;
+        if (values.cartodb_id)
+            res = await update(values.cartodb_id, newValues);
+        else res = await insert(newValues);
         setLoading(false);
         if (res.status < 400){
-            if(type === 'INSERT')
+            if(!values.cartodb_id)// if insert and successed
                 setValues(defaultState);
             enqueueSnackbar("המשימה נשמרה בהצלחה!", { variant: 'success' });
         } else {

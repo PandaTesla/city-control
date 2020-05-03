@@ -5,8 +5,7 @@ import {Typography, Button, Card, CardContent, Select, FormControl, InputLabel, 
 import {Edit, Search} from '@material-ui/icons';
 import { useSnackbar } from 'notistack';
 import { FIELDS, FIELDS_HEB, FIELDS_TYPE } from '../constants/data';
-import { convertAll } from '../utils/converter'
-import { getByColumn, insertUpdate, logout } from '../utils/requests'
+import { fetchMissionsBy, updateAll, logout } from '../utils/requests';
 
 import Form from './Form'
 
@@ -66,7 +65,7 @@ function EditPage() {
   const handleSearch = async (event) => {
     event.preventDefault();
     setSearch({loading: true});
-    let fetchRes = await getByColumn(search.column, search.value);
+    let fetchRes = await fetchMissionsBy(search.column, search.value);
     setSearch({loading: false});
     if(fetchRes.status < 400){
       setMissions(fetchRes.data)
@@ -82,7 +81,7 @@ function EditPage() {
   
   const handleEdit = async () => {
     setEditAll({loading: true});
-    let res = await insertUpdate(convertAll(editAll.search_col, editAll.search_val, editAll.column, editAll.value));
+    let res = await updateAll(editAll.search_col, editAll.search_val, editAll.column, editAll.value);
     setEditAll({loading: false});
     if (res.status < 400){
       enqueueSnackbar("השדה עודכן ונשמר לכולם בהצלחה!", { variant: 'success' });
@@ -176,7 +175,7 @@ function EditPage() {
         </div>}
         <CardContent>
             <Typography variant="subtitle1">{`תוצאות: ${missions.length}`}</Typography>
-            {missions.map((missionData, i) => <Form key={i} data={missionData}/>)}
+            {missions.map((missionData) => <Form key={missionData.cartodb_id} data={missionData}/>)}
         </CardContent>
       </Card>
     </>
